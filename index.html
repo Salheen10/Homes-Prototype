@@ -1,0 +1,1709 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Homes BRD - Advanced Role-Based Interactive Prototype</title>
+  <style>
+    :root{
+      --bg:#08111f;
+      --panel:#101b2d;
+      --panel-2:#13223a;
+      --panel-3:#0d1728;
+      --text:#eef5ff;
+      --muted:#9fb0ca;
+      --line:rgba(255,255,255,.10);
+      --soft:rgba(255,255,255,.06);
+      --accent:#55d6be;
+      --accent-2:#7c5cff;
+      --danger:#ff5f73;
+      --warning:#ffcc66;
+      --success:#58d68d;
+      --blue:#58a6ff;
+      --shadow:0 24px 70px rgba(0,0,0,.42);
+      --radius:22px;
+      --radius-sm:14px;
+      --font:"Inter", "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(85,214,190,.18), transparent 32%),
+        radial-gradient(circle at 92% 8%, rgba(124,92,255,.20), transparent 35%),
+        radial-gradient(circle at 50% 100%, rgba(88,166,255,.12), transparent 36%),
+        var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+      overflow:hidden;
+    }
+    button,input,select,textarea{font-family:inherit}
+    .app{height:100vh;display:grid;grid-template-columns:310px 1fr;gap:0;overflow:hidden}
+    aside{
+      background:linear-gradient(180deg, rgba(11,20,36,.98), rgba(9,15,27,.96));
+      border-left:1px solid var(--line);
+      box-shadow:12px 0 50px rgba(0,0,0,.22);
+      padding:18px 14px;
+      overflow:auto;
+    }
+    main{overflow:auto;padding:22px 24px 80px;position:relative}
+    .brand{
+      display:flex;align-items:center;gap:12px;padding:8px 8px 18px;margin-bottom:8px;
+      border-bottom:1px solid var(--line);
+    }
+    .logo{
+      width:44px;height:44px;border-radius:15px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:grid;place-items:center;color:#06101d;font-weight:950;box-shadow:0 12px 30px rgba(85,214,190,.18);
+      letter-spacing:-1px;
+    }
+    .brand h1{font-size:17px;margin:0;line-height:1.15}
+    .brand p{font-size:12px;margin:4px 0 0;color:var(--muted)}
+    .persona-card{
+      margin:14px 4px;padding:14px;border:1px solid var(--line);border-radius:var(--radius);
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.035));
+      box-shadow:0 16px 40px rgba(0,0,0,.16);
+    }
+    .label{font-size:11px;color:var(--muted);margin-bottom:7px;display:block}
+    .select, .input, textarea{
+      width:100%;padding:11px 12px;border-radius:14px;border:1px solid var(--line);
+      background:rgba(255,255,255,.07);color:var(--text);outline:none;
+    }
+    .select option{background:#0e1728;color:#fff}
+    .persona-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .meta-pill{
+      border:1px solid var(--line);border-radius:14px;padding:9px;background:rgba(0,0,0,.12);
+      min-height:54px;
+    }
+    .meta-pill span{display:block;font-size:10px;color:var(--muted)}
+    .meta-pill strong{display:block;font-size:12px;margin-top:4px}
+    .nav-title{font-size:11px;color:var(--muted);padding:14px 12px 6px;text-transform:uppercase;letter-spacing:.08em}
+    .nav-item{
+      width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border:1px solid transparent;background:transparent;color:var(--text);padding:10px 10px;
+      border-radius:16px;cursor:pointer;transition:.18s ease;margin:2px 0;text-align:right;
+    }
+    .nav-item:hover{background:rgba(255,255,255,.065);border-color:var(--line)}
+    .nav-item.active{
+      background:linear-gradient(90deg, rgba(85,214,190,.18), rgba(124,92,255,.13));
+      border-color:rgba(85,214,190,.35);
+      box-shadow:inset 0 0 0 1px rgba(85,214,190,.05);
+    }
+    .nav-left{display:flex;align-items:center;gap:10px;min-width:0}
+    .nav-icon{width:30px;height:30px;border-radius:12px;background:rgba(255,255,255,.08);display:grid;place-items:center;flex:0 0 auto}
+    .nav-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status-dot{font-size:10px;border-radius:99px;padding:4px 7px;border:1px solid var(--line);color:var(--muted);flex:0 0 auto}
+    .status-full{color:#07160f;background:var(--success);border-color:transparent}
+    .status-limited{color:#201500;background:var(--warning);border-color:transparent}
+    .status-denied{color:#fff;background:rgba(255,95,115,.18);border-color:rgba(255,95,115,.35)}
+    .topbar{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;
+      position:sticky;top:-22px;z-index:20;padding:22px 0 12px;
+      background:linear-gradient(180deg,rgba(8,17,31,.98),rgba(8,17,31,.86),rgba(8,17,31,0));
+      backdrop-filter:blur(10px);
+    }
+    .page-title h2{margin:0;font-size:27px;letter-spacing:-.03em}
+    .page-title p{margin:6px 0 0;color:var(--muted);font-size:13px;max-width:900px;line-height:1.6}
+    .top-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      border:1px solid var(--line);background:rgba(255,255,255,.07);color:var(--text);border-radius:14px;
+      padding:10px 13px;cursor:pointer;transition:.18s ease;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:12px;
+    }
+    .btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.11)}
+    .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#06101d;border-color:transparent}
+    .btn.danger{background:rgba(255,95,115,.14);border-color:rgba(255,95,115,.35)}
+    .btn.success{background:rgba(88,214,141,.16);border-color:rgba(88,214,141,.35)}
+    .btn.warning{background:rgba(255,204,102,.16);border-color:rgba(255,204,102,.35)}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .grid{display:grid;gap:14px}
+    .cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+    .card{
+      border:1px solid var(--line);border-radius:var(--radius);background:
+        linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));
+      box-shadow:0 20px 55px rgba(0,0,0,.18);padding:16px;position:relative;overflow:hidden;
+    }
+    .card::before{
+      content:"";position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(circle at 0% 0%, rgba(255,255,255,.06), transparent 30%);
+    }
+    .card h3{margin:0 0 9px;font-size:16px;letter-spacing:-.01em}
+    .card p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}
+    .stat{
+      min-height:125px;display:flex;flex-direction:column;justify-content:space-between;
+    }
+    .stat .num{font-size:31px;font-weight:950;letter-spacing:-.04em}
+    .stat .hint{font-size:12px;color:var(--muted);line-height:1.5}
+    .stat .mini{height:5px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px}
+    .stat .mini span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px}
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:rgba(255,255,255,.06);
+      border-radius:999px;padding:5px 9px;font-size:11px;color:var(--muted);white-space:nowrap;
+    }
+    .badge.full{background:rgba(88,214,141,.16);border-color:rgba(88,214,141,.3);color:#a9f3c8}
+    .badge.limited{background:rgba(255,204,102,.14);border-color:rgba(255,204,102,.28);color:#ffe0a3}
+    .badge.denied{background:rgba(255,95,115,.14);border-color:rgba(255,95,115,.3);color:#ffbdc6}
+    .badge.blue{background:rgba(88,166,255,.14);border-color:rgba(88,166,255,.3);color:#b6d6ff}
+    .badge.accent{background:rgba(85,214,190,.13);border-color:rgba(85,214,190,.28);color:#bff5ec}
+    .section{
+      margin-bottom:15px;
+    }
+    .section-head{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 10px;
+    }
+    .section-head h3{margin:0;font-size:18px}
+    .section-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .access-banner{
+      display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;
+      padding:14px;border-radius:var(--radius);border:1px solid var(--line);
+      background:linear-gradient(90deg,rgba(85,214,190,.10),rgba(124,92,255,.08));
+    }
+    .access-banner strong{font-size:14px}
+    .access-banner p{font-size:12px;color:var(--muted);margin:4px 0 0;line-height:1.55}
+    .table-wrap{
+      border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:rgba(255,255,255,.035);
+    }
+    table{width:100%;border-collapse:collapse;font-size:12.5px}
+    th,td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle;text-align:right}
+    th{color:#bfd0e8;background:rgba(255,255,255,.065);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+    tr:hover td{background:rgba(255,255,255,.035)}
+    tr:last-child td{border-bottom:none}
+    .masked{
+      color:transparent;text-shadow:0 0 9px rgba(255,255,255,.45);user-select:none;
+    }
+    .locked-cell{display:flex;align-items:center;gap:7px;color:var(--muted)}
+    .toolbar{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 12px;
+    }
+    .toolbar .input,.toolbar .select{max-width:220px}
+    .drawer{
+      position:fixed;top:0;left:0;width:430px;max-width:96vw;height:100vh;background:#0b1424;border-right:1px solid var(--line);
+      box-shadow:-20px 0 70px rgba(0,0,0,.45);z-index:80;transform:translateX(-105%);transition:.25s ease;
+      padding:18px;overflow:auto;
+    }
+    .drawer.open{transform:translateX(0)}
+    .drawer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:14px}
+    .drawer h3{margin:0;font-size:20px}
+    .kv{display:grid;grid-template-columns:120px 1fr;gap:8px;border-bottom:1px solid rgba(255,255,255,.075);padding:10px 0;font-size:13px}
+    .kv span:first-child{color:var(--muted)}
+    .modal-backdrop{
+      position:fixed;inset:0;background:rgba(0,0,0,.56);backdrop-filter:blur(7px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px;
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(640px,96vw);border:1px solid var(--line);border-radius:28px;background:
+      linear-gradient(180deg,rgba(20,31,52,.98),rgba(11,20,36,.98));box-shadow:var(--shadow);padding:20px;
+    }
+    .modal h3{margin:0 0 8px;font-size:22px}
+    .modal p{margin:0;color:var(--muted);line-height:1.7}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-start;margin-top:18px;flex-wrap:wrap}
+    .toast{
+      position:fixed;bottom:20px;right:20px;z-index:120;display:grid;gap:10px;
+    }
+    .toast-item{
+      border:1px solid var(--line);background:rgba(12,22,39,.96);box-shadow:var(--shadow);border-radius:18px;padding:12px 14px;
+      min-width:260px;max-width:430px;font-size:13px;animation:pop .2s ease;
+    }
+    @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .pipeline{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:12px;overflow:auto;padding-bottom:8px}
+    .lane{border:1px solid var(--line);border-radius:var(--radius);background:rgba(255,255,255,.035);min-height:260px;padding:12px}
+    .lane h4{margin:0 0 10px;font-size:13px;display:flex;justify-content:space-between;color:#d9e7fb}
+    .deal-card,.lead-card,.candidate-card{
+      border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.06);padding:11px;margin-bottom:10px;
+    }
+    .deal-card strong,.lead-card strong,.candidate-card strong{font-size:13px}
+    .deal-card p,.lead-card p,.candidate-card p{font-size:12px;margin:5px 0;color:var(--muted);line-height:1.45}
+    .progress{height:9px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+    .progress span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px}
+    .bars{display:grid;gap:9px;margin-top:8px}
+    .bar{display:grid;grid-template-columns:120px 1fr 42px;gap:10px;align-items:center;font-size:12px}
+    .bar-track{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+    .bar-track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+    .flow{
+      display:grid;grid-template-columns:repeat(5,minmax(160px,1fr));gap:10px;overflow:auto;padding-bottom:8px
+    }
+    .flow-step{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.055);padding:12px;position:relative;min-height:128px}
+    .flow-step b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#06101d;margin-bottom:8px}
+    .flow-step h4{margin:0 0 6px;font-size:13px}
+    .flow-step p{font-size:12px;line-height:1.5}
+    .permission-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .perm{
+      display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:14px;padding:10px;
+      min-height:48px;font-size:12px;
+    }
+    .perm input{accent-color:#55d6be}
+    .role-lens{
+      display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;margin-bottom:16px;
+    }
+    .lens-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .empty{
+      border:1px dashed rgba(255,255,255,.22);border-radius:var(--radius);padding:28px;text-align:center;color:var(--muted);
+      background:rgba(255,255,255,.025);
+    }
+    .split{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:14px;
+    }
+    .phone-frame{
+      width:100%;max-width:330px;margin:auto;border:1px solid var(--line);border-radius:34px;padding:14px;background:#050a13;box-shadow:0 24px 70px rgba(0,0,0,.34);
+    }
+    .phone-screen{border-radius:24px;overflow:hidden;background:#101b2d;min-height:520px;border:1px solid rgba(255,255,255,.08)}
+    .phone-top{height:44px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .property-img{
+      height:150px;border-radius:18px;background:
+        linear-gradient(135deg,rgba(85,214,190,.25),rgba(124,92,255,.25)),
+        repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0 10px,rgba(255,255,255,.025) 10px 20px);
+      display:flex;align-items:end;padding:12px;
+    }
+    .tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .timeline{display:grid;gap:10px}
+    .event{
+      border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.045);padding:11px;position:relative
+    }
+    .event small{color:var(--muted)}
+    .event strong{display:block;margin:3px 0 4px}
+    .toggle{
+      display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:rgba(255,255,255,.045)
+    }
+    .toggle button{border:0;background:transparent;color:var(--muted);padding:8px 11px;cursor:pointer}
+    .toggle button.on{background:var(--accent);color:#06101d;font-weight:900}
+    .heat{
+      display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px
+    }
+    .heat span{height:28px;border-radius:8px;background:rgba(255,255,255,.06);display:grid;place-items:center;font-size:10px;color:var(--muted)}
+    .heat span.hot{background:rgba(255,95,115,.28);color:#fff}
+    .heat span.warm{background:rgba(255,204,102,.24);color:#fff}
+    .heat span.cool{background:rgba(85,214,190,.20);color:#fff}
+    .deny-illustration{
+      height:150px;border-radius:24px;background:
+        radial-gradient(circle at 30% 20%,rgba(255,95,115,.25),transparent 28%),
+        radial-gradient(circle at 75% 70%,rgba(124,92,255,.22),transparent 30%),
+        rgba(255,255,255,.04);
+      border:1px solid var(--line);display:grid;place-items:center;font-size:54px;margin-bottom:14px;
+    }
+    .req-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .req{border:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px;padding:12px}
+    .req b{font-size:12px}
+    .req p{font-size:11px;margin:6px 0 0}
+    @media(max-width:1200px){
+      .app{grid-template-columns:1fr}
+      aside{display:none}
+      .cols-4,.cols-5,.role-lens,.split{grid-template-columns:1fr}
+      .cols-3{grid-template-columns:1fr 1fr}
+      .topbar{position:relative;top:0}
+      body{overflow:auto}
+      main{overflow:visible}
+    }
+    @media(max-width:720px){
+      main{padding:14px}
+      .cols-2,.cols-3{grid-template-columns:1fr}
+      .permission-grid,.req-grid{grid-template-columns:1fr}
+      .topbar{flex-direction:column}
+      .drawer{width:100vw}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="logo">H</div>
+        <div>
+          <h1>Homes OS Prototype</h1>
+          <p>Advanced RBAC + Persona Simulation</p>
+        </div>
+      </div>
+
+      <div class="persona-card">
+        <label class="label">اختار Persona / Role وشوف النظام بيتغير فعليًا</label>
+        <select id="personaSelect" class="select"></select>
+        <div class="persona-meta">
+          <div class="meta-pill"><span>Scope</span><strong id="metaScope">—</strong></div>
+          <div class="meta-pill"><span>Department</span><strong id="metaDept">—</strong></div>
+        </div>
+      </div>
+
+      <div id="nav"></div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div class="page-title">
+          <h2 id="pageTitle">—</h2>
+          <p id="pageSubtitle">—</p>
+        </div>
+        <div class="top-actions">
+          <button class="btn" id="mobilePersonaBtn">👤 Change Persona</button>
+          <button class="btn" id="explainRoleBtn">🔎 Explain Current Access</button>
+          <button class="btn danger" id="resetBtn">↺ Reset Demo Data</button>
+        </div>
+      </div>
+
+      <section id="roleLens"></section>
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <div id="drawer" class="drawer"></div>
+  <div id="modal" class="modal-backdrop"></div>
+  <div id="toast" class="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = "homes_brd_advanced_prototype_v2";
+
+  const modules = [
+    {id:"dashboard", icon:"📊", name:"Command Center", group:"Core OS", desc:"Landing dashboard changes completely based on persona, scope, and accessible KPIs."},
+    {id:"marketplace", icon:"🏠", name:"Marketplace", group:"Demand", desc:"Customer discovery, inquiries, tour requests, favorites, and source context."},
+    {id:"marketplaceDashboard", icon:"📈", name:"Marketplace Dashboard", group:"Demand", desc:"Traffic, inquiry, tour, source, project, developer, and funnel visibility."},
+    {id:"crm", icon:"🎯", name:"CRM Leads", group:"Sales Execution", desc:"Lead intake, duplicate control, ownership, manager queue, and scoped lead lists."},
+    {id:"hierarchy", icon:"🧭", name:"Lead Hierarchy", group:"Sales Execution", desc:"Sales Director → Manager → Team Leader → Agent assignment and SLA governance."},
+    {id:"buyer", icon:"🧩", name:"Buyer Preferences", group:"Sales Execution", desc:"Structured buyer briefs and inventory matching localized for Egypt."},
+    {id:"inventory", icon:"🏗️", name:"Inventory Workspace", group:"Sales Execution", desc:"Developer/project/compound/unit workspace with marketplace/developer/manual origin."},
+    {id:"tasks", icon:"✅", name:"Tasks, Calendar & Tours", group:"Sales Execution", desc:"Next actions, overdue tasks, tours, notifications, and escalation."},
+    {id:"deals", icon:"🤝", name:"Deals & Contracts", group:"Finance/Sales", desc:"Pipeline, contracts, reservation, closed won/lost, commission foundation."},
+    {id:"recruitment", icon:"🧑‍💼", name:"Recruitment", group:"People Ops", desc:"Job requisition, careers page, candidate pipeline, interviews, acceptance."},
+    {id:"agentPlatform", icon:"🚀", name:"Agent Platform", group:"People Ops", desc:"Invitation, profile, documents, training progress, access readiness."},
+    {id:"training", icon:"🎓", name:"Training Gate", group:"People Ops", desc:"Job-title and role-based learning that locks sensitive permissions until complete."},
+    {id:"backoffice", icon:"🛡️", name:"Backoffice RBAC", group:"Governance", desc:"Departments, job titles, custom roles, permissions, documents, access readiness."},
+    {id:"finance", icon:"💰", name:"Finance & Commission", group:"Finance/Sales", desc:"Commission policies, override approvals, salary reflection, finance reports."},
+    {id:"reports", icon:"📑", name:"Reports & Analytics", group:"Governance", desc:"Role-based reports with reconciled metric dictionary and audited exports."},
+    {id:"campaigns", icon:"📣", name:"Campaigns & Automation", group:"Demand", desc:"Source tags, routing, stale-lead alerts, task automation, notification rules."},
+    {id:"contacts", icon:"☎️", name:"External Contacts", group:"Sales Execution", desc:"Developer reps, legal, mortgage, operations contacts linked to deals/projects."},
+    {id:"settings", icon:"⚙️", name:"Settings, Integrations & Audit", group:"Governance", desc:"Integration health, security settings, export logs, immutable audit trail."},
+    {id:"trace", icon:"🧾", name:"BRD Traceability", group:"Governance", desc:"Requirement coverage map across Marketplace, CRM, HR, Finance, Backoffice."}
+  ];
+
+  const personas = {
+    customer:{
+      label:"Customer / Buyer", dept:"External", scope:"Own customer account only", theme:"#55d6be",
+      story:"يدور على عقارات، يحفظ searches، يعمل inquiry أو tour. ممنوع يدخل أي موديول داخلي.",
+      modules:{
+        dashboard:"full", marketplace:"full", marketplaceDashboard:"denied", crm:"denied", hierarchy:"denied", buyer:"denied",
+        inventory:"limited", tasks:"denied", deals:"denied", recruitment:"denied", agentPlatform:"denied", training:"denied",
+        backoffice:"denied", finance:"denied", reports:"denied", campaigns:"denied", contacts:"denied", settings:"denied", trace:"limited"
+      },
+      permissions:["Search Properties","Save Favorites","Request Tour","Submit Inquiry"],
+      restrictions:["No CRM access","No internal lead data","No finance, HR, or backoffice modules"],
+      dataScope:"customer"
+    },
+    candidate:{
+      label:"Candidate", dept:"External Applicant", scope:"Own application only", theme:"#58a6ff",
+      story:"يشوف وظائف منشورة ويقدم ويتابع طلبه فقط. لا يحصل على employee access قبل القبول والدعوة.",
+      modules:{
+        dashboard:"full", marketplace:"denied", marketplaceDashboard:"denied", crm:"denied", hierarchy:"denied", buyer:"denied",
+        inventory:"denied", tasks:"denied", deals:"denied", recruitment:"limited", agentPlatform:"denied", training:"denied",
+        backoffice:"denied", finance:"denied", reports:"denied", campaigns:"denied", contacts:"denied", settings:"denied", trace:"limited"
+      },
+      permissions:["View Published Jobs","Submit Application","View Own Application Status"],
+      restrictions:["No employee permissions","No candidate records of others","No internal modules"],
+      dataScope:"candidate"
+    },
+    agent:{
+      label:"Agent / Sales Agent", dept:"Sales", scope:"Own assigned leads/deals/tasks only", theme:"#55d6be",
+      story:"يشتغل على leads المخصصة له، يضيف buyer preferences، يعمل tasks/tours/deals. لا يرى بيانات فرق أخرى.",
+      modules:{
+        dashboard:"full", marketplace:"limited", marketplaceDashboard:"denied", crm:"full", hierarchy:"limited", buyer:"full",
+        inventory:"full", tasks:"full", deals:"full", recruitment:"denied", agentPlatform:"full", training:"limited",
+        backoffice:"denied", finance:"limited", reports:"limited", campaigns:"denied", contacts:"limited", settings:"denied", trace:"limited"
+      },
+      permissions:["View Own Leads","Edit Own Leads","Create Task","Schedule Tour","Create Deal","View Own Commission If Allowed"],
+      restrictions:["Cannot assign leads","Cannot view unrelated teams","Finance fields are partially hidden","Cannot approve commission overrides"],
+      dataScope:"own"
+    },
+    teamLeader:{
+      label:"Team Leader", dept:"Sales", scope:"Team Alpha only", theme:"#ffcc66",
+      story:"يوزع leads داخل فريقه، يراقب overdue work، ويراجع pipeline الفريق فقط.",
+      modules:{
+        dashboard:"full", marketplace:"limited", marketplaceDashboard:"denied", crm:"full", hierarchy:"full", buyer:"full",
+        inventory:"full", tasks:"full", deals:"full", recruitment:"denied", agentPlatform:"limited", training:"limited",
+        backoffice:"denied", finance:"limited", reports:"full", campaigns:"limited", contacts:"full", settings:"denied", trace:"limited"
+      },
+      permissions:["View Team Leads","Assign Within Team","Reassign Within Team","View Team Reports","Coach Qualification"],
+      restrictions:["No other teams by default","No salary reflection","Limited commission visibility","Cannot change role permissions"],
+      dataScope:"teamAlpha"
+    },
+    salesManager:{
+      label:"Sales Manager", dept:"Sales", scope:"Managed teams Alpha + Beta", theme:"#7c5cff",
+      story:"يمسك manager queue، يوزع leads على team leaders/agents، ويشوف أداء الفرق التابعة.",
+      modules:{
+        dashboard:"full", marketplace:"limited", marketplaceDashboard:"limited", crm:"full", hierarchy:"full", buyer:"full",
+        inventory:"full", tasks:"full", deals:"full", recruitment:"limited", agentPlatform:"limited", training:"limited",
+        backoffice:"denied", finance:"limited", reports:"full", campaigns:"full", contacts:"full", settings:"denied", trace:"full"
+      },
+      permissions:["Manager Queue","Assign Leads","Approve Selected Exceptions","View Managed Teams","Escalate Stale Leads"],
+      restrictions:["Cannot bypass duplicate review","No direct role/permission admin","Salary reflection hidden","Finance approval limited"],
+      dataScope:"manager"
+    },
+    salesDirector:{
+      label:"Sales Director", dept:"Sales Leadership", scope:"All sales hierarchy", theme:"#ff8a5c",
+      story:"يراقب كل sales hierarchy، يوافق على high-value exceptions، ويرى pipeline وsource/project performance.",
+      modules:{
+        dashboard:"full", marketplace:"limited", marketplaceDashboard:"full", crm:"full", hierarchy:"full", buyer:"full",
+        inventory:"full", tasks:"full", deals:"full", recruitment:"limited", agentPlatform:"limited", training:"limited",
+        backoffice:"limited", finance:"full", reports:"full", campaigns:"full", contacts:"full", settings:"limited", trace:"full"
+      },
+      permissions:["View Sales Corporate Scope","Approve Commission Overrides","View Pipeline Forecast","Hierarchy Intervention"],
+      restrictions:["Operational edits audited","HR/Backoffice writes limited","System settings limited"],
+      dataScope:"salesAll"
+    },
+    hrRecruiter:{
+      label:"HR Recruiter", dept:"HR / Recruitment", scope:"Recruitment and onboarding records", theme:"#58a6ff",
+      story:"ينشر jobs ويدير candidates ويحول accepted candidates إلى employee pre-record. لا يملك CRM أو Finance.",
+      modules:{
+        dashboard:"full", marketplace:"denied", marketplaceDashboard:"denied", crm:"denied", hierarchy:"denied", buyer:"denied",
+        inventory:"denied", tasks:"limited", deals:"denied", recruitment:"full", agentPlatform:"full", training:"full",
+        backoffice:"limited", finance:"denied", reports:"limited", campaigns:"denied", contacts:"denied", settings:"denied", trace:"full"
+      },
+      permissions:["Create Job Requisition","Publish Job","Move Candidate Stage","Send Employee Invitation","View Onboarding Status"],
+      restrictions:["Cannot grant final production access alone","No CRM leads","No finance approval","Cannot approve sensitive permissions"],
+      dataScope:"hr"
+    },
+    backofficeAdmin:{
+      label:"Backoffice Admin", dept:"Backoffice", scope:"Org, access, documents, audit", theme:"#55d6be",
+      story:"يدير departments/job titles/custom roles/access readiness/audit. Finance approval يتطلب permission منفصل.",
+      modules:{
+        dashboard:"full", marketplace:"denied", marketplaceDashboard:"denied", crm:"limited", hierarchy:"limited", buyer:"denied",
+        inventory:"limited", tasks:"limited", deals:"limited", recruitment:"limited", agentPlatform:"full", training:"full",
+        backoffice:"full", finance:"limited", reports:"full", campaigns:"denied", contacts:"limited", settings:"full", trace:"full"
+      },
+      permissions:["Create Department","Create Job Title","Create Custom Role","Assign Role","Review Documents","Approve Access Readiness","View Audit Logs"],
+      restrictions:["Cannot approve finance unless granted","Cannot alter sales ownership except authorized workflow","Training gate bypass requires exception permission"],
+      dataScope:"backoffice"
+    },
+    financeOfficer:{
+      label:"Finance Officer", dept:"Finance", scope:"Finance + commission data", theme:"#58d68d",
+      story:"يدير commission policies، approvals، salary reflection، finance dashboard. لا يغير sales ownership.",
+      modules:{
+        dashboard:"full", marketplace:"denied", marketplaceDashboard:"denied", crm:"limited", hierarchy:"denied", buyer:"denied",
+        inventory:"limited", tasks:"limited", deals:"limited", recruitment:"denied", agentPlatform:"denied", training:"denied",
+        backoffice:"limited", finance:"full", reports:"full", campaigns:"denied", contacts:"limited", settings:"limited", trace:"full"
+      },
+      permissions:["Configure Commission Policy","Approve Override","Validate Finance State","Edit Salary Reflection","Export Finance Report"],
+      restrictions:["Cannot assign leads","Cannot edit CRM ownership","No recruitment access","Sales notes are limited"],
+      dataScope:"finance"
+    },
+    marketingAdmin:{
+      label:"Marketplace / Marketing Admin", dept:"Marketing", scope:"Marketplace and source performance", theme:"#ff62c4",
+      story:"يدير campaigns/source tags وmarketplace funnel. لا يغير CRM ownership ولا يشوف PII كاملة.",
+      modules:{
+        dashboard:"full", marketplace:"full", marketplaceDashboard:"full", crm:"limited", hierarchy:"denied", buyer:"denied",
+        inventory:"full", tasks:"denied", deals:"limited", recruitment:"denied", agentPlatform:"denied", training:"denied",
+        backoffice:"denied", finance:"denied", reports:"limited", campaigns:"full", contacts:"denied", settings:"limited", trace:"full"
+      },
+      permissions:["Manage Source Tags","View Marketplace Dashboard","Publish Listing Content","View Source Contribution"],
+      restrictions:["Cannot assign/reassign leads","PII masked","No commission/salary fields","No HR/backoffice"],
+      dataScope:"marketing"
+    },
+    executive:{
+      label:"Executive / Broker Admin", dept:"Executive", scope:"Corporate visibility with audited interventions", theme:"#ffd166",
+      story:"يرى corporate dashboards، finance insight، governance alerts. operational edits لازم تكون audit-controlled.",
+      modules:{
+        dashboard:"full", marketplace:"limited", marketplaceDashboard:"full", crm:"limited", hierarchy:"full", buyer:"limited",
+        inventory:"full", tasks:"limited", deals:"full", recruitment:"full", agentPlatform:"limited", training:"limited",
+        backoffice:"full", finance:"full", reports:"full", campaigns:"full", contacts:"limited", settings:"limited", trace:"full"
+      },
+      permissions:["View Corporate Dashboards","Approve Governance Rules","View Sensitive Reports","High-Level Intervention"],
+      restrictions:["Day-to-day edits discouraged and audited","Technical settings limited","Operational actions require reason"],
+      dataScope:"corporate"
+    },
+    systemAdmin:{
+      label:"System Admin", dept:"System Administration", scope:"Platform configuration, not business outcomes", theme:"#b693ff",
+      story:"يدير integrations/security/settings/platform health. لا يستخدم صلاحياته لتغيير business outcomes.",
+      modules:{
+        dashboard:"full", marketplace:"denied", marketplaceDashboard:"limited", crm:"denied", hierarchy:"denied", buyer:"denied",
+        inventory:"limited", tasks:"denied", deals:"denied", recruitment:"denied", agentPlatform:"denied", training:"denied",
+        backoffice:"limited", finance:"denied", reports:"limited", campaigns:"denied", contacts:"denied", settings:"full", trace:"full"
+      },
+      permissions:["Configure Integrations","Manage Security Settings","View Audit Health","Manage Environment Controls"],
+      restrictions:["No business edits","No sales ownership changes","No commission approval","No candidate decisioning"],
+      dataScope:"system"
+    }
+  };
+
+  function defaultState(){
+    return {
+      currentPersona:"salesManager",
+      activeModule:"dashboard",
+      leads:[
+        {id:"L-1001", name:"Mohamed Hassan", phone:"+20 100 111 2244", email:"m.hassan@mail.com", source:"Marketplace", campaign:"New Cairo Launch", project:"Palm Hills New Cairo", developer:"Palm Hills", budget:8500000, stage:"Qualified", owner:"Omar Agent", ownerId:"agentOmar", team:"Alpha", manager:"Khaled Manager", duplicate:"Clear", priority:"Hot", nextAction:"Tour tomorrow", age:2, manualProtected:false, preference:86},
+        {id:"L-1002", name:"Sara Ali", phone:"+20 111 888 3000", email:"sara.ali@mail.com", source:"Referral", campaign:"Broker Referral", project:"ZED East", developer:"Ora", budget:12200000, stage:"Negotiation", owner:"Yara Agent", ownerId:"agentYara", team:"Alpha", manager:"Khaled Manager", duplicate:"Clear", priority:"Hot", nextAction:"Contract follow-up", age:8, manualProtected:true, preference:91},
+        {id:"L-1003", name:"Karim Fouad", phone:"+20 122 443 0101", email:"karim@mail.com", source:"Walk-in", campaign:"Branch Visit", project:"Madinaty", developer:"Talaat Moustafa", budget:5200000, stage:"New", owner:null, ownerId:null, team:"Unassigned", manager:"Khaled Manager", duplicate:"Review", priority:"Warm", nextAction:"Manager assignment", age:1, manualProtected:false, preference:20},
+        {id:"L-1004", name:"Nour Ibrahim", phone:"+20 100 222 5566", email:"nour.ib@mail.com", source:"Marketplace", campaign:"North Coast Summer", project:"Hacienda Bay", developer:"Palm Hills", budget:16000000, stage:"Tour Scheduled", owner:"Mina Agent", ownerId:"agentMina", team:"Beta", manager:"Khaled Manager", duplicate:"Clear", priority:"Hot", nextAction:"Tour Sat 4pm", age:5, manualProtected:false, preference:79},
+        {id:"L-1005", name:"Ahmed Samir", phone:"+20 155 400 0001", email:"ahmed@mail.com", source:"Campaign", campaign:"TikTok Lead Gen", project:"Mountain View iCity", developer:"Mountain View", budget:7300000, stage:"Nurture", owner:"Laila Agent", ownerId:"agentLaila", team:"Beta", manager:"Khaled Manager", duplicate:"Possible", priority:"Cold", nextAction:"Re-contact next week", age:17, manualProtected:false, preference:55},
+        {id:"L-1006", name:"Lobna Adel", phone:"+20 112 991 7777", email:"lobna@mail.com", source:"Marketplace", campaign:"October Search", project:"O West", developer:"Orascom", budget:9800000, stage:"Qualified", owner:"Heba Agent", ownerId:"agentHeba", team:"Gamma", manager:"Farida Manager", duplicate:"Clear", priority:"Warm", nextAction:"Send options", age:3, manualProtected:false, preference:73},
+        {id:"L-1007", name:"Youssef Tarek", phone:"+20 101 909 9090", email:"yt@mail.com", source:"Manual", campaign:"Agent Network", project:"Hyde Park", developer:"Hyde Park", budget:11200000, stage:"Reservation", owner:"Omar Agent", ownerId:"agentOmar", team:"Alpha", manager:"Khaled Manager", duplicate:"Clear", priority:"Hot", nextAction:"Finance validation", age:29, manualProtected:true, preference:94},
+        {id:"L-1008", name:"Mariam Nabil", phone:"+20 120 300 2000", email:"mariam@mail.com", source:"Marketplace", campaign:"Saved Search Trigger", project:"Sodic East", developer:"SODIC", budget:6700000, stage:"Manager Queue", owner:null, ownerId:null, team:"Unassigned", manager:"Khaled Manager", duplicate:"Clear", priority:"Warm", nextAction:"Assign within SLA", age:0, manualProtected:false, preference:15}
+      ],
+      deals:[
+        {id:"D-501", leadId:"L-1002", customer:"Sara Ali", owner:"Yara Agent", ownerId:"agentYara", team:"Alpha", project:"ZED East", developer:"Ora", stage:"Negotiation", value:12200000, commissionRate:2.0, override:false, overrideReason:"", approval:"Not Required", financeState:"Forecast", salaryReflection:"Pending"},
+        {id:"D-502", leadId:"L-1007", customer:"Youssef Tarek", owner:"Omar Agent", ownerId:"agentOmar", team:"Alpha", project:"Hyde Park", developer:"Hyde Park", stage:"Reservation", value:11200000, commissionRate:1.8, override:true, overrideReason:"Developer special agreement", approval:"Pending Sales Director", financeState:"Needs Validation", salaryReflection:"Locked"},
+        {id:"D-503", leadId:"L-1004", customer:"Nour Ibrahim", owner:"Mina Agent", ownerId:"agentMina", team:"Beta", project:"Hacienda Bay", developer:"Palm Hills", stage:"Tour Scheduled", value:16000000, commissionRate:2.1, override:false, overrideReason:"", approval:"Not Required", financeState:"Forecast", salaryReflection:"Not Eligible"},
+        {id:"D-504", leadId:"L-1001", customer:"Mohamed Hassan", owner:"Omar Agent", ownerId:"agentOmar", team:"Alpha", project:"Palm Hills New Cairo", developer:"Palm Hills", stage:"Qualified", value:8500000, commissionRate:2.0, override:false, overrideReason:"", approval:"Not Required", financeState:"Forecast", salaryReflection:"Not Eligible"},
+        {id:"D-505", leadId:"L-1006", customer:"Lobna Adel", owner:"Heba Agent", ownerId:"agentHeba", team:"Gamma", project:"O West", developer:"Orascom", stage:"Contracting", value:9800000, commissionRate:1.7, override:true, overrideReason:"Shared inventory deal", approval:"Approved", financeState:"Validated", salaryReflection:"Ready"}
+      ],
+      tasks:[
+        {id:"T-1", title:"Call Mohamed and confirm tour time", type:"Call", owner:"Omar Agent", ownerId:"agentOmar", team:"Alpha", related:"L-1001", due:"Today 3:00 PM", status:"Open", overdue:false, priority:"High"},
+        {id:"T-2", title:"Review duplicate candidate Karim / Ahmed", type:"Duplicate Review", owner:"Khaled Manager", ownerId:"mgrKhaled", team:"Management", related:"L-1003", due:"Today 5:00 PM", status:"Open", overdue:false, priority:"High"},
+        {id:"T-3", title:"Follow up contract documents", type:"Contract Follow-up", owner:"Yara Agent", ownerId:"agentYara", team:"Alpha", related:"D-501", due:"Yesterday", status:"Open", overdue:true, priority:"High"},
+        {id:"T-4", title:"Validate commission override", type:"Finance Follow-up", owner:"Hany Finance", ownerId:"finHany", team:"Finance", related:"D-502", due:"Tomorrow", status:"Open", overdue:false, priority:"Medium"},
+        {id:"T-5", title:"Publish New Cairo campaign source tag", type:"Marketing", owner:"Laila Marketing", ownerId:"mktLaila", team:"Marketing", related:"Campaign", due:"Today", status:"Open", overdue:false, priority:"Medium"},
+        {id:"T-6", title:"Approve access readiness for Mina", type:"Access Readiness", owner:"Nadine Backoffice", ownerId:"boNadine", team:"Backoffice", related:"EMP-4", due:"2 days ago", status:"Open", overdue:true, priority:"High"}
+      ],
+      inventory:[
+        {id:"U-1", project:"Palm Hills New Cairo", developer:"Palm Hills", compound:"New Cairo", unit:"Twin House 265m", price:8500000, delivery:"2027", finishing:"Semi-finished", status:"Available", origin:"Marketplace", payment:"10% DP / 8 years"},
+        {id:"U-2", project:"ZED East", developer:"Ora", compound:"New Cairo", unit:"Apartment 180m", price:12200000, delivery:"Ready", finishing:"Finished", status:"Limited", origin:"Developer Feed", payment:"Cash discount 18%"},
+        {id:"U-3", project:"Hacienda Bay", developer:"Palm Hills", compound:"North Coast", unit:"Chalet 145m", price:16000000, delivery:"2028", finishing:"Finished", status:"Available", origin:"Developer Feed", payment:"15% DP / 7 years"},
+        {id:"U-4", project:"O West", developer:"Orascom", compound:"6th October", unit:"Townhouse 240m", price:9800000, delivery:"2026", finishing:"Core & Shell", status:"Reserved", origin:"Manual", payment:"20% DP / 6 years"},
+        {id:"U-5", project:"Mountain View iCity", developer:"Mountain View", compound:"New Cairo", unit:"Apartment 155m", price:7300000, delivery:"2027", finishing:"Semi-finished", status:"Available", origin:"Marketplace", payment:"10% DP / 9 years"}
+      ],
+      candidates:[
+        {id:"C-1", name:"Aya Mostafa", job:"Sales Agent", source:"Careers Page", stage:"Interview", score:78, department:"Sales", owner:"Dina HR"},
+        {id:"C-2", name:"Peter Adel", job:"Team Leader", source:"LinkedIn", stage:"Assessment", score:85, department:"Sales", owner:"Dina HR"},
+        {id:"C-3", name:"Salma Nader", job:"Finance Officer", source:"Referral", stage:"Offer", score:91, department:"Finance", owner:"Dina HR"},
+        {id:"C-4", name:"Mostafa Said", job:"Marketplace Content Admin", source:"Careers Page", stage:"New", score:0, department:"Marketplace Operations", owner:"Dina HR"},
+        {id:"C-5", name:"Hussein Gamal", job:"Sales Agent", source:"Talent Pool", stage:"Accepted", score:88, department:"Sales", owner:"Dina HR"}
+      ],
+      employees:[
+        {id:"EMP-1", name:"Omar Agent", department:"Sales", jobTitle:"Sales Agent", role:"Sales Agent R1", manager:"Mona TL", training:80, docs:"Complete", access:"Active", team:"Alpha"},
+        {id:"EMP-2", name:"Yara Agent", department:"Sales", jobTitle:"Senior Agent", role:"Senior Sales R1", manager:"Mona TL", training:100, docs:"Complete", access:"Active", team:"Alpha"},
+        {id:"EMP-3", name:"Mona TL", department:"Sales", jobTitle:"Team Leader", role:"Team Leader R1", manager:"Khaled Manager", training:92, docs:"Complete", access:"Active", team:"Alpha"},
+        {id:"EMP-4", name:"Mina Agent", department:"Sales", jobTitle:"Sales Agent", role:"Sales Agent R1", manager:"Tamer TL", training:45, docs:"Pending ID", access:"Pending Training", team:"Beta"},
+        {id:"EMP-5", name:"Salma Nader", department:"Finance", jobTitle:"Finance Officer", role:"Finance Officer R1", manager:"Hany Finance", training:70, docs:"Complete", access:"Pending Finance Training", team:"Finance"},
+        {id:"EMP-6", name:"Mostafa Said", department:"Marketplace Operations", jobTitle:"Content Admin", role:"Marketplace Ops R1", manager:"Laila Marketing", training:30, docs:"Pending Contract", access:"Pending Documents", team:"Marketing"}
+      ],
+      roles:[
+        {name:"Sales Agent R1", dept:"Sales", permissions:["View Own Leads","Edit Own Leads","Create Task","Schedule Tour","Create Deal","View Own Reports"]},
+        {name:"Team Leader R1", dept:"Sales", permissions:["View Team Leads","Assign Leads","Reassign Leads","View Team Reports","View Team Pipeline"]},
+        {name:"Finance Officer R1", dept:"Finance", permissions:["View Commission","Configure Commission Policy","Approve Override","Edit Salary Reflection","Export Finance Report"]},
+        {name:"Backoffice Admin R1", dept:"Backoffice", permissions:["Create Department","Create Job Title","Create Custom Role","Assign Role","Review Documents","View Audit Logs"]}
+      ],
+      campaigns:[
+        {id:"CMP-1", name:"New Cairo Launch", source:"Meta Ads", leads:54, tours:13, deals:4, cpl:310, status:"Active"},
+        {id:"CMP-2", name:"North Coast Summer", source:"TikTok", leads:38, tours:9, deals:2, cpl:280, status:"Active"},
+        {id:"CMP-3", name:"Saved Search Trigger", source:"Marketplace Automation", leads:21, tours:5, deals:1, cpl:0, status:"Automation"},
+        {id:"CMP-4", name:"Broker Referral", source:"Referral", leads:18, tours:6, deals:3, cpl:0, status:"Active"}
+      ],
+      contacts:[
+        {name:"Amr Developer Rep", company:"Palm Hills", category:"Developer Rep", phone:"+20 100 888 3333", linked:"Palm Hills New Cairo / Hacienda Bay"},
+        {name:"Nadine Legal", company:"External Legal Office", category:"Legal", phone:"+20 122 222 4444", linked:"Contracting deals"},
+        {name:"Tamer Mortgage", company:"Bank Partner", category:"Mortgage", phone:"+20 155 333 2211", linked:"Financing-ready buyers"}
+      ],
+      audit:[
+        {time:"2026-04-25 09:10", actor:"System", action:"Lead Capture", detail:"Marketplace inquiry created L-1008 with source and project context."},
+        {time:"2026-04-25 09:25", actor:"Khaled Manager", action:"Assignment", detail:"Assigned L-1001 to Omar Agent. SLA timer started."},
+        {time:"2026-04-25 10:05", actor:"Yara Agent", action:"Deal Stage", detail:"Moved D-501 to Negotiation."},
+        {time:"2026-04-25 11:20", actor:"Omar Agent", action:"Commission Override", detail:"Submitted override request for D-502 with reason."},
+        {time:"2026-04-25 12:40", actor:"Nadine Backoffice", action:"Role Review", detail:"Cloned Sales Agent role for review."}
+      ]
+    }
+  }
+
+  let state = load();
+  let activeModule = state.activeModule || "dashboard";
+
+  function load(){
+    try{
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(saved) return JSON.parse(saved);
+    }catch(e){}
+    return defaultState();
+  }
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function fmt(n){ return new Intl.NumberFormat("en-US").format(Math.round(n)); }
+  function money(n){ return fmt(n) + " EGP"; }
+  function nowStamp(){ return new Date().toLocaleString("en-GB", {hour12:false}); }
+  function current(){ return personas[state.currentPersona]; }
+  function status(moduleId){ return current().modules[moduleId] || "denied"; }
+  function moduleById(id){ return modules.find(m=>m.id===id); }
+  function can(moduleId){ return status(moduleId) !== "denied"; }
+  function isFull(moduleId){ return status(moduleId) === "full"; }
+  function isLimited(moduleId){ return status(moduleId) === "limited"; }
+  function esc(v){ return String(v ?? "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+  function addAudit(action, detail){
+    state.audit.unshift({time:nowStamp(), actor:current().label, action, detail});
+    save();
+  }
+  function toast(msg){
+    const wrap = document.getElementById("toast");
+    const el = document.createElement("div");
+    el.className = "toast-item";
+    el.innerHTML = msg;
+    wrap.appendChild(el);
+    setTimeout(()=>{ el.style.opacity=.0; el.style.transform="translateY(6px)"; }, 2800);
+    setTimeout(()=> el.remove(), 3300);
+  }
+
+  function visibleLeads(){
+    const scope = current().dataScope;
+    let leads = state.leads.slice();
+    if(scope === "own") leads = leads.filter(l => l.ownerId === "agentOmar");
+    if(scope === "teamAlpha") leads = leads.filter(l => l.team === "Alpha" || l.team === "Unassigned");
+    if(scope === "manager") leads = leads.filter(l => ["Alpha","Beta","Unassigned"].includes(l.team));
+    if(scope === "salesAll" || scope === "corporate") leads = leads;
+    if(scope === "marketing") leads = leads.filter(l => l.source === "Marketplace" || l.source === "Campaign");
+    if(scope === "finance") leads = state.leads.filter(l => state.deals.some(d => d.leadId === l.id));
+    if(["hr","candidate","customer","system"].includes(scope)) leads = [];
+    if(scope === "backoffice") leads = leads.filter(l => l.duplicate !== "Clear" || !l.owner);
+    return leads;
+  }
+  function visibleDeals(){
+    const scope = current().dataScope;
+    let deals = state.deals.slice();
+    if(scope === "own") deals = deals.filter(d => d.ownerId === "agentOmar");
+    if(scope === "teamAlpha") deals = deals.filter(d => d.team === "Alpha");
+    if(scope === "manager") deals = deals.filter(d => ["Alpha","Beta"].includes(d.team));
+    if(scope === "marketing") deals = deals.map(d => ({...d, customer:"Masked customer", owner:"Masked owner"}));
+    if(["hr","candidate","customer","system"].includes(scope)) deals = [];
+    return deals;
+  }
+  function canAssign(){
+    return ["teamLeader","salesManager","salesDirector"].includes(state.currentPersona);
+  }
+  function canApproveFinance(){
+    return ["financeOfficer","salesDirector","executive"].includes(state.currentPersona);
+  }
+  function showPII(){
+    return ["agent","teamLeader","salesManager","salesDirector","backofficeAdmin"].includes(state.currentPersona);
+  }
+  function showFinanceSensitive(){
+    return ["financeOfficer","salesDirector","executive"].includes(state.currentPersona);
+  }
+  function showSalary(){
+    return ["financeOfficer","executive"].includes(state.currentPersona);
+  }
+  function canEditRBAC(){
+    return ["backofficeAdmin"].includes(state.currentPersona);
+  }
+  function actorOwns(ownerId){
+    if(state.currentPersona === "agent") return ownerId === "agentOmar";
+    return ["teamLeader","salesManager","salesDirector","backofficeAdmin","financeOfficer","executive"].includes(state.currentPersona);
+  }
+
+  function setupPersonaSelect(){
+    const sel = document.getElementById("personaSelect");
+    sel.innerHTML = Object.entries(personas).map(([k,p])=>`<option value="${k}">${p.label}</option>`).join("");
+    sel.value = state.currentPersona;
+    sel.onchange = () => {
+      state.currentPersona = sel.value;
+      const p = current();
+      document.documentElement.style.setProperty("--accent", p.theme);
+      if(status(activeModule)==="denied") activeModule = "dashboard";
+      state.activeModule = activeModule;
+      addAudit("Persona Switch", "Demo switched to " + p.label + " access lens.");
+      render();
+    };
+  }
+
+  function renderNav(){
+    const nav = document.getElementById("nav");
+    const groups = [...new Set(modules.map(m=>m.group))];
+    nav.innerHTML = groups.map(g => `
+      <div class="nav-title">${g}</div>
+      ${modules.filter(m=>m.group===g).map(m=>{
+        const st = status(m.id);
+        const label = st==="full" ? "Full" : st==="limited" ? "Limited" : "Locked";
+        const cls = st==="full" ? "status-full" : st==="limited" ? "status-limited" : "status-denied";
+        return `<button class="nav-item ${activeModule===m.id?'active':''}" data-module="${m.id}">
+          <span class="nav-left"><span class="nav-icon">${m.icon}</span><span class="nav-name">${m.name}</span></span>
+          <span class="status-dot ${cls}">${label}</span>
+        </button>`
+      }).join("")}
+    `).join("");
+    nav.querySelectorAll(".nav-item").forEach(btn=>{
+      btn.onclick = () => {
+        const id = btn.dataset.module;
+        if(status(id)==="denied"){
+          showDenied(id);
+          return;
+        }
+        activeModule = id;
+        state.activeModule = id;
+        save();
+        render();
+      }
+    })
+  }
+
+  function renderRoleLens(){
+    const p = current();
+    document.getElementById("metaScope").textContent = p.scope;
+    document.getElementById("metaDept").textContent = p.dept;
+    document.documentElement.style.setProperty("--accent", p.theme);
+    const allowed = modules.filter(m=>status(m.id)==="full").length;
+    const limited = modules.filter(m=>status(m.id)==="limited").length;
+    const denied = modules.filter(m=>status(m.id)==="denied").length;
+    const hiddenMessage = p.restrictions.join(" • ");
+
+    document.getElementById("roleLens").innerHTML = `
+      <div class="role-lens">
+        <div class="card">
+          <h3>🎭 Current Persona: ${p.label}</h3>
+          <p>${p.story}</p>
+          <div class="lens-list">
+            <span class="badge full">${allowed} Full Modules</span>
+            <span class="badge limited">${limited} Limited Modules</span>
+            <span class="badge denied">${denied} Locked Modules</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>🔐 Permissions Lens</h3>
+          <div class="lens-list">${p.permissions.map(x=>`<span class="badge accent">${esc(x)}</span>`).join("")}</div>
+        </div>
+        <div class="card">
+          <h3>🚧 Restrictions Actually Applied</h3>
+          <p>${esc(hiddenMessage)}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  function setTitle(){
+    const m = moduleById(activeModule);
+    document.getElementById("pageTitle").textContent = `${m.icon} ${m.name}`;
+    document.getElementById("pageSubtitle").textContent = m.desc + " — Current access: " + status(activeModule).toUpperCase();
+  }
+
+  function accessBanner(moduleId){
+    const p = current(), st = status(moduleId);
+    const label = st==="full" ? "Full Access" : st==="limited" ? "Limited / Scoped Access" : "No Access";
+    const text = st==="full"
+      ? `أنت داخل كمستخدم ${p.label}. الموديول متاح بالكامل حسب permissions الحالية.`
+      : st==="limited"
+      ? `أنت داخل كمستخدم ${p.label}. الموديول مفتوح لكن البيانات أو الأفعال متفلترة حسب scope: ${p.scope}. بعض الحقول/actions مقفولة.`
+      : `الموديول غير متاح لهذا الـ persona.`;
+    const cls = st==="full"?"full":st==="limited"?"limited":"denied";
+    return `<div class="access-banner">
+      <div><strong>${label}</strong><p>${text}</p></div>
+      <span class="badge ${cls}">${p.scope}</span>
+    </div>`;
+  }
+
+  function statCard(label,num,hint,pct=70, badge=""){
+    return `<div class="card stat">
+      <div>
+        <div class="badge blue">${badge || "Scoped KPI"}</div>
+        <div class="num">${num}</div>
+      </div>
+      <div><strong>${label}</strong><div class="hint">${hint}</div><div class="mini"><span style="width:${pct}%"></span></div></div>
+    </div>`;
+  }
+
+  function renderDashboard(){
+    const pkey = state.currentPersona;
+    const leads = visibleLeads();
+    const deals = visibleDeals();
+    const overdue = state.tasks.filter(t=>t.overdue && (current().dataScope==="corporate" || current().dataScope==="manager" || current().dataScope==="teamAlpha" ? ["Alpha","Beta","Management","Backoffice","Finance"].includes(t.team) : t.ownerId==="agentOmar")).length;
+    const pipelineValue = deals.reduce((a,d)=>a+d.value,0);
+    let personaPanel = "";
+
+    if(pkey==="customer"){
+      personaPanel = `
+      <div class="split">
+        <div class="card">
+          <h3>🏠 Customer Marketplace Home</h3>
+          <p>الشكل هنا public وتجاري: Search, property cards, saved searches, inquiry. مفيش أي internal CRM أو finance أو employee controls.</p>
+          <div class="toolbar" style="margin-top:14px">
+            <input class="input" placeholder="Search by area / project / compound" value="New Cairo">
+            <button class="btn primary" onclick="window.HomesDemo.go('marketplace')">Search Properties</button>
+          </div>
+          <div class="grid cols-3" style="margin-top:12px">
+            ${state.inventory.slice(0,3).map(u=>propertyCard(u,true)).join("")}
+          </div>
+        </div>
+        <div class="card">
+          <h3>🔒 Internal Modules Locked</h3>
+          <p>لو العميل حاول يفتح CRM أو Finance أو Backoffice، هيظهر access denied. ده بيعكس الـ BRD: Customer no internal CRM access.</p>
+          <div class="lens-list">
+            <span class="badge denied">CRM Locked</span><span class="badge denied">Finance Locked</span><span class="badge denied">Backoffice Locked</span>
+          </div>
+        </div>
+      </div>`;
+    } else if(pkey==="candidate"){
+      personaPanel = `
+      <div class="grid cols-3">
+        ${statCard("Own Application Status","Interview","Candidate يرى طلبه فقط، ولا يشوف Candidates آخرين.",65,"Own Data")}
+        ${statCard("Published Jobs","4","Jobs open to public careers page.",80,"Public")}
+        ${statCard("Employee Access","Locked","No employee access until accepted and invited.",20,"Gate")}
+      </div>`;
+    } else if(pkey==="hrRecruiter"){
+      personaPanel = `
+      <div class="grid cols-4">
+        ${statCard("Open Requisitions","6","Jobs requiring approval or publication.",78,"HR")}
+        ${statCard("Candidates","${state.candidates.length}","Candidate pipeline with stages and scorecards.",66,"HR")}
+        ${statCard("Accepted → Invite","1","Accepted candidates ready for employee invitation.",34,"Onboarding")}
+        ${statCard("CRM Visibility","0","HR has no lead workspace access.",5,"Blocked")}
+      </div>`;
+    } else if(pkey==="financeOfficer"){
+      const pending = state.deals.filter(d=>d.override && !["Approved","Rejected"].includes(d.approval)).length;
+      personaPanel = `
+      <div class="grid cols-4">
+        ${statCard("Commission Forecast",money(pipelineValue*0.02),"Finance sees commission values and validation state.",70,"Finance")}
+        ${statCard("Pending Overrides",pending,"Overrides requiring hierarchy / finance review.",45,"Approval")}
+        ${statCard("Salary Reflection","Visible","Only finance/executive can see salary reflection.",90,"Sensitive")}
+        ${statCard("Lead Assignment","Blocked","Finance cannot change CRM ownership.",10,"Control")}
+      </div>`;
+    } else if(pkey==="backofficeAdmin"){
+      personaPanel = `
+      <div class="grid cols-4">
+        ${statCard("Custom Roles",state.roles.length,"Role bundles mapped to job titles.",75,"RBAC")}
+        ${statCard("Pending Access",state.employees.filter(e=>e.access!=="Active").length,"Training/doc/access readiness items.",58,"Gate")}
+        ${statCard("Audit Events",state.audit.length,"Sensitive changes are immutable and traceable.",84,"Audit")}
+        ${statCard("Finance Approval","Limited","Backoffice can view policy/admin records but not approve finance.",20,"Control")}
+      </div>`;
+    } else {
+      personaPanel = `
+      <div class="grid cols-4">
+        ${statCard("Visible Leads",leads.length,scopeText("leads"),Math.min(100,leads.length*12+15),"CRM")}
+        ${statCard("Unassigned / Queue",leads.filter(l=>!l.owner).length,"Manager queue and duplicate review are scoped.",50,"Lead Control")}
+        ${statCard("Overdue Tasks",overdue,"Overdue work visible only within permission scope.",overdue?80:10,"SLA")}
+        ${statCard("Pipeline Value",showFinanceSensitive()?money(pipelineValue):"Restricted",showFinanceSensitive()?"Finance-sensitive visible.":"Finance-sensitive hidden for this persona.",65,"Finance")}
+      </div>`;
+    }
+
+    return `
+      ${accessBanner("dashboard")}
+      ${personaPanel}
+      <div class="section-head">
+        <div><h3>Operating Flow Preview</h3><p>نفس lifecycle الموجود في الـ BRD لكن بيتأثر بالـ persona والـ permissions.</p></div>
+      </div>
+      <div class="flow">
+        <div class="flow-step"><b>1</b><h4>Marketplace Demand</h4><p>Customer inquiry/tour request captures source, project, developer and intent.</p></div>
+        <div class="flow-step"><b>2</b><h4>Duplicate Control</h4><p>Phone/email/normalized name check before assignment and reporting.</p></div>
+        <div class="flow-step"><b>3</b><h4>Manager Queue</h4><p>Sales Manager owns clean routing before agent ownership.</p></div>
+        <div class="flow-step"><b>4</b><h4>Sales Execution</h4><p>Agent works preferences, tasks, tours, deals and contract progression.</p></div>
+        <div class="flow-step"><b>5</b><h4>Finance & Audit</h4><p>Commission policy, override approval, salary reflection and audit trail.</p></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Role-based module map</h3>
+          <div class="bars">
+            ${["dashboard","marketplace","crm","finance","backoffice","recruitment","settings"].map(id=>{
+              const st=status(id); const pct=st==="full"?100:st==="limited"?55:12;
+              return `<div class="bar"><span>${moduleById(id).name}</span><div class="bar-track"><span style="width:${pct}%"></span></div><b>${st}</b></div>`
+            }).join("")}
+          </div>
+        </div>
+        <div class="card">
+          <h3>Recent Audit Trail</h3>
+          <div class="timeline">${state.audit.slice(0,5).map(a=>auditEvent(a)).join("")}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function scopeText(obj){
+    const p = current();
+    if(p.dataScope==="own") return `Only ${obj} owned by Omar Agent are visible.`;
+    if(p.dataScope==="teamAlpha") return `Only Team Alpha ${obj} plus assignable queue are visible.`;
+    if(p.dataScope==="manager") return `Managed teams Alpha + Beta ${obj} are visible.`;
+    if(p.dataScope==="marketing") return `${obj} are aggregated/source-focused; PII masked.`;
+    if(p.dataScope==="corporate" || p.dataScope==="salesAll") return `Corporate/sales-wide ${obj} are visible.`;
+    return `Scoped by ${p.scope}.`;
+  }
+
+  function propertyCard(u, publicMode=false){
+    return `<div class="lead-card">
+      <div class="property-img"><span class="badge full">${esc(u.status)}</span></div>
+      <strong>${esc(u.project)}</strong>
+      <p>${esc(u.unit)} • ${esc(u.compound)} • ${esc(u.developer)}</p>
+      <div class="tag-row">
+        <span class="badge">${money(u.price)}</span>
+        <span class="badge">${esc(u.delivery)}</span>
+        <span class="badge">${esc(u.payment)}</span>
+        ${publicMode ? "" : `<span class="badge blue">Origin: ${esc(u.origin)}</span>`}
+      </div>
+    </div>`;
+  }
+
+  function renderMarketplace(){
+    const p = current();
+    const internalControls = ["marketingAdmin","salesManager","salesDirector","executive"].includes(state.currentPersona);
+    const publicMode = state.currentPersona === "customer";
+    const form = publicMode || internalControls ? `
+      <div class="card">
+        <h3>${publicMode ? "Submit Inquiry / Request Tour" : "Lead Capture Simulator"}</h3>
+        <p>بيخلق Lead جديد في CRM Manager Queue مع source/project context وبيسجل Audit event.</p>
+        <div class="grid cols-2" style="margin-top:12px">
+          <input class="input" id="inqName" placeholder="Customer name" value="New Customer">
+          <input class="input" id="inqPhone" placeholder="Phone" value="+20 100 777 8899">
+          <select class="select" id="inqProject">${state.inventory.map(u=>`<option>${esc(u.project)}</option>`).join("")}</select>
+          <select class="select" id="inqIntent"><option>Inquiry</option><option>Schedule Tour</option><option>Saved Search</option><option>Favorite</option></select>
+        </div>
+        <button class="btn primary" style="margin-top:12px" id="captureLeadBtn">+ Create CRM Intake Event</button>
+      </div>` : "";
+    return `
+      ${accessBanner("marketplace")}
+      <div class="split">
+        <div>
+          <div class="card">
+            <h3>${publicMode ? "Customer-facing Discovery" : "Marketplace Operations View"}</h3>
+            <p>${publicMode ? "العميل يرى cards جذابة وCTA فقط. لا يرى CRM ownership أو duplicate state." : "المستخدم الداخلي يرى source/context/availability controls حسب الصلاحية."}</p>
+            <div class="toolbar" style="margin-top:14px">
+              <input class="input" placeholder="Area / project / developer" value="New Cairo">
+              <select class="select"><option>Ready + Off-plan</option><option>Ready</option><option>Off-plan</option></select>
+              <select class="select"><option>Budget 5M - 15M</option><option>Less than 5M</option><option>15M+</option></select>
+            </div>
+          </div>
+          <div class="grid cols-2" style="margin-top:14px">
+            ${state.inventory.map(u=>propertyCard(u,publicMode)).join("")}
+          </div>
+        </div>
+        <div>
+          ${form}
+          <div class="card" style="margin-top:${form?'14px':'0'}">
+            <h3>${internalControls ? "Marketplace Controls" : "What is hidden?"}</h3>
+            ${internalControls ? `
+              <div class="lens-list">
+                <span class="badge full">Manage source tags</span>
+                <span class="badge full">Campaign context</span>
+                <span class="badge limited">Cannot assign leads</span>
+                <span class="badge denied">No salary data</span>
+              </div>
+              <div class="bars">
+                ${state.campaigns.map(c=>`<div class="bar"><span>${esc(c.name)}</span><div class="bar-track"><span style="width:${Math.min(100,c.leads)}%"></span></div><b>${c.leads}</b></div>`).join("")}
+              </div>` : `
+              <p>Customer mode hides owner, team, duplicate review, commission, audit, and all backoffice controls.</p>
+              <div class="lens-list"><span class="badge denied">Owner Hidden</span><span class="badge denied">Duplicate Hidden</span><span class="badge denied">Finance Hidden</span></div>`}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMarketplaceDashboard(){
+    return `
+      ${accessBanner("marketplaceDashboard")}
+      <div class="grid cols-4">
+        ${statCard("Traffic Sessions","18,420","Public marketplace sessions this month.",82,"Acquisition")}
+        ${statCard("Inquiries","132","Inquiry/tour capture events feeding CRM.",64,"Lead Capture")}
+        ${statCard("Tours Requested","33","Schedule-tour events with property context.",45,"Tours")}
+        ${statCard("CRM Deals from Marketplace",visibleDeals().filter(d => state.leads.find(l=>l.id===d.leadId)?.source==="Marketplace").length,"Connected to CRM outcomes, not vanity metrics.",38,"Closed-loop")}
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Source Contribution</h3>
+          <div class="bars">${state.campaigns.map(c=>{
+            const pct=Math.min(100, c.leads*1.5);
+            return `<div class="bar"><span>${esc(c.source)}</span><div class="bar-track"><span style="width:${pct}%"></span></div><b>${c.leads}</b></div>`
+          }).join("")}</div>
+        </div>
+        <div class="card">
+          <h3>Project / Developer Funnel</h3>
+          <div class="table-wrap"><table><thead><tr><th>Project</th><th>Inquiries</th><th>Tours</th><th>Deals</th><th>Visibility</th></tr></thead><tbody>
+            ${state.inventory.slice(0,5).map((u,i)=>`<tr><td>${esc(u.project)}</td><td>${22-i*3}</td><td>${7-i}</td><td>${Math.max(0,3-i)}</td><td><span class="badge full">CRM-linked</span></td></tr>`).join("")}
+          </tbody></table></div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCRM(){
+    const leads = visibleLeads();
+    const pii = showPII();
+    const marketing = state.currentPersona === "marketingAdmin";
+    if(leads.length===0 && status("crm")==="limited"){
+      return `${accessBanner("crm")}<div class="empty">هذا الـ persona عنده CRM limited shell فقط، لكن لا توجد records مسموح له برؤيتها.</div>`;
+    }
+    return `
+      ${accessBanner("crm")}
+      <div class="toolbar">
+        <input class="input" id="leadSearch" placeholder="Search visible leads">
+        <select class="select" id="leadStageFilter"><option value="">All stages</option>${[...new Set(leads.map(l=>l.stage))].map(x=>`<option>${esc(x)}</option>`).join("")}</select>
+        <button class="btn ${canAssign()?'primary':''}" ${canAssign()?'':'disabled'} id="bulkAssignBtn">Assign Selected</button>
+        <button class="btn warning" ${["salesManager","salesDirector","backofficeAdmin"].includes(state.currentPersona)?'':'disabled'} id="duplicateReviewBtn">Run Duplicate Review</button>
+      </div>
+      <div class="table-wrap">
+        <table id="leadsTable">
+          <thead><tr>
+            <th>Lead</th><th>Contact</th><th>Source</th><th>Project</th><th>Owner / Team</th><th>Stage</th><th>Duplicate</th><th>Budget</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            ${leads.map(l=>leadRow(l,pii,marketing)).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="grid cols-3" style="margin-top:14px">
+        <div class="card"><h3>Duplicate Control</h3><p>Duplicate check happens before assignment and before lead counts affect reporting.</p><div class="lens-list"><span class="badge limited">${leads.filter(l=>l.duplicate!=="Clear").length} needs review</span></div></div>
+        <div class="card"><h3>Manual Lead Protection</h3><p>Manual agent leads are protected for 6 months unless hierarchy override is approved.</p><div class="lens-list"><span class="badge denied">${leads.filter(l=>l.manualProtected).length} protected</span></div></div>
+        <div class="card"><h3>Visibility Difference</h3><p>${pii ? "PII and operational fields are visible because this persona belongs to allowed sales/backoffice scope." : "PII is masked or aggregated for this persona."}</p></div>
+      </div>
+    `;
+  }
+
+  function leadRow(l, pii, marketing){
+    const contact = pii ? `${esc(l.phone)}<br><span style="color:var(--muted)">${esc(l.email)}</span>` : `<span class="masked">${esc(l.phone)}</span><br><span class="badge denied">PII masked</span>`;
+    const budget = marketing ? `<span class="badge denied">Hidden</span>` : money(l.budget);
+    const actionAssign = canAssign() ? `<button class="btn primary small" data-assign="${l.id}">Assign</button>` : `<button class="btn" disabled>Assign</button>`;
+    const owner = l.owner ? `${esc(l.owner)}<br><span style="color:var(--muted)">${esc(l.team)}</span>` : `<span class="badge limited">Manager Queue</span>`;
+    return `<tr data-lead-row="${l.id}" data-stage="${esc(l.stage).toLowerCase()}">
+      <td><strong>${esc(l.id)}</strong><br>${pii || marketing ? esc(l.name) : '<span class="masked">'+esc(l.name)+'</span>'}</td>
+      <td>${contact}</td>
+      <td>${esc(l.source)}<br><span style="color:var(--muted)">${esc(l.campaign)}</span></td>
+      <td>${esc(l.project)}<br><span style="color:var(--muted)">${esc(l.developer)}</span></td>
+      <td>${owner}</td>
+      <td><span class="badge ${l.stage==='Manager Queue'?'limited':'blue'}">${esc(l.stage)}</span></td>
+      <td><span class="badge ${l.duplicate==='Clear'?'full':'limited'}">${esc(l.duplicate)}</span></td>
+      <td>${budget}</td>
+      <td><button class="btn" data-open-lead="${l.id}">Open</button> ${actionAssign}</td>
+    </tr>`;
+  }
+
+  function renderHierarchy(){
+    const leads = visibleLeads();
+    const queue = leads.filter(l=>!l.owner || l.stage==="Manager Queue" || l.duplicate==="Review" || l.duplicate==="Possible");
+    return `
+      ${accessBanner("hierarchy")}
+      <div class="grid cols-3">
+        <div class="card"><h3>Sales Director</h3><p>Youssef Director</p><div class="lens-list"><span class="badge ${["salesDirector","executive"].includes(state.currentPersona)?"full":"limited"}">Corporate Oversight</span></div></div>
+        <div class="card"><h3>Sales Manager</h3><p>Khaled Manager — Teams Alpha + Beta</p><div class="lens-list"><span class="badge full">Manager Queue</span><span class="badge limited">SLA Aging</span></div></div>
+        <div class="card"><h3>Team Leaders</h3><p>Mona TL / Tamer TL — Assign within descendant agents.</p><div class="lens-list"><span class="badge ${state.currentPersona==="teamLeader"?"full":"limited"}">Team Scope</span></div></div>
+      </div>
+      <div class="section-head"><div><h3>Manager Queue / Duplicate Control</h3><p>Only allowed personas can assign, and assignment is audited.</p></div></div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Queue Items</h3>
+          ${queue.length ? queue.map(l=>`<div class="lead-card"><strong>${esc(l.id)} — ${showPII()?esc(l.name):"Masked Lead"}</strong><p>${esc(l.project)} • ${esc(l.source)} • Duplicate: ${esc(l.duplicate)}</p><div class="tag-row"><span class="badge limited">${l.age}d age</span><span class="badge blue">${esc(l.priority)}</span>${canAssign()?`<button class="btn primary" data-assign="${l.id}">Assign Now</button>`:`<button class="btn" disabled>Assignment locked</button>`}</div></div>`).join("") : `<div class="empty">No visible queue items.</div>`}
+        </div>
+        <div class="card">
+          <h3>Assignment Rules Applied</h3>
+          <div class="timeline">
+            <div class="event"><small>Rule</small><strong>Manager queue first</strong><p>Eligible new leads do not bypass Sales Manager queue.</p></div>
+            <div class="event"><small>Rule</small><strong>Team Leader scope</strong><p>Team Leader can assign only within their team descendants.</p></div>
+            <div class="event"><small>Rule</small><strong>Manual protection</strong><p>Manual leads protected for 6 months unless authorized override exists.</p></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBuyer(){
+    const leads = visibleLeads().filter(l=>l.owner);
+    return `
+      ${accessBanner("buyer")}
+      <div class="grid cols-3">
+        ${leads.map(l=>`<div class="card">
+          <h3>${showPII()?esc(l.name):"Masked Buyer"} <span class="badge">${esc(l.id)}</span></h3>
+          <p>${esc(l.project)} • Budget ${showFinanceSensitive() || ["agent","teamLeader","salesManager"].includes(state.currentPersona) ? money(l.budget) : "Restricted"}</p>
+          <div class="progress" style="margin:12px 0"><span style="width:${l.preference}%"></span></div>
+          <div class="tag-row">
+            <span class="badge ${l.preference>80?'full':l.preference>50?'limited':'denied'}">${l.preference}% complete</span>
+            <span class="badge">Ready/Off-plan</span>
+            <span class="badge">Payment plan</span>
+            <span class="badge">Delivery timeline</span>
+          </div>
+        </div>`).join("") || `<div class="empty">No buyer preference records visible for this persona.</div>`}
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>Egypt-specific Preference Fields</h3>
+        <div class="permission-grid">
+          ${["Budget min/max","Preferred city/area/compound","Developer/project","Unit type","Ready/off-plan","Delivery date","Finishing","Down payment","Monthly installment","Financing readiness","Move timeline","Match notes"].map(x=>`<div class="perm">✅ ${x}</div>`).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderInventory(){
+    return `
+      ${accessBanner("inventory")}
+      <div class="grid cols-3">
+        ${state.inventory.map(u=>propertyCard(u,false)).join("")}
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Inventory Origin Control</h3>
+          <p>كل record لازم يعرف origin: Marketplace / Developer Feed / Manual / Future MLS-linked.</p>
+          <div class="bars">${["Marketplace","Developer Feed","Manual"].map(origin=>{
+            const count = state.inventory.filter(u=>u.origin===origin).length;
+            return `<div class="bar"><span>${origin}</span><div class="bar-track"><span style="width:${count*25+20}%"></span></div><b>${count}</b></div>`
+          }).join("")}</div>
+        </div>
+        <div class="card">
+          <h3>Editable Controls</h3>
+          <p>${["marketingAdmin","backofficeAdmin"].includes(state.currentPersona) ? "This persona can manage content/status fields where allowed." : "Controlled marketplace/developer fields are read-only for this persona."}</p>
+          <div class="lens-list">
+            <span class="badge ${["marketingAdmin"].includes(state.currentPersona)?"full":"limited"}">Publish Listing</span>
+            <span class="badge ${["marketingAdmin"].includes(state.currentPersona)?"full":"limited"}">Edit Content</span>
+            <span class="badge denied">Overwrite Developer Feed</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTasks(){
+    const scope = current().dataScope;
+    let tasks = state.tasks.slice();
+    if(scope==="own") tasks = tasks.filter(t=>t.ownerId==="agentOmar");
+    if(scope==="teamAlpha") tasks = tasks.filter(t=>t.team==="Alpha" || t.team==="Management");
+    if(scope==="manager") tasks = tasks.filter(t=>["Alpha","Beta","Management","Finance","Backoffice"].includes(t.team));
+    if(scope==="hr") tasks = tasks.filter(t=>["Access Readiness"].includes(t.type));
+    if(scope==="finance") tasks = tasks.filter(t=>["Finance Follow-up","Contract Follow-up"].includes(t.type));
+    if(scope==="marketing") tasks = [];
+    return `
+      ${accessBanner("tasks")}
+      <div class="grid cols-3">
+        ${statCard("Visible Tasks",tasks.length,"Tasks are scope-filtered.",60,"Tasks")}
+        ${statCard("Overdue",tasks.filter(t=>t.overdue).length,"Overdue items feed escalation dashboards.",tasks.filter(t=>t.overdue).length?80:10,"SLA")}
+        ${statCard("Tours Today",tasks.filter(t=>t.type==="Tour").length,"Tour events preserve lead/project/unit context.",35,"Tours")}
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table><thead><tr><th>Task</th><th>Owner</th><th>Related</th><th>Due</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead><tbody>
+          ${tasks.map(t=>`<tr><td><strong>${esc(t.title)}</strong><br><span style="color:var(--muted)">${esc(t.type)}</span></td><td>${esc(t.owner)}<br><span style="color:var(--muted)">${esc(t.team)}</span></td><td>${esc(t.related)}</td><td><span class="badge ${t.overdue?'denied':'blue'}">${esc(t.due)}</span></td><td>${esc(t.priority)}</td><td>${esc(t.status)}</td><td><button class="btn success" ${actorOwns(t.ownerId)?`data-complete-task="${t.id}"`:"disabled"}>Complete</button></td></tr>`).join("") || `<tr><td colspan="7"><div class="empty">No task records visible.</div></td></tr>`}
+        </tbody></table>
+      </div>
+    `;
+  }
+
+  function renderDeals(){
+    const deals = visibleDeals();
+    const stages = ["Qualified","Tour Scheduled","Negotiation","Reservation","Contracting"];
+    return `
+      ${accessBanner("deals")}
+      <div class="pipeline">
+        ${stages.map(s=>`<div class="lane"><h4><span>${s}</span><span class="badge">${deals.filter(d=>d.stage===s).length}</span></h4>
+          ${deals.filter(d=>d.stage===s).map(d=>dealCard(d)).join("") || `<div class="empty">No deals</div>`}
+        </div>`).join("")}
+      </div>
+      <div class="section-head"><div><h3>Commission Overrides</h3><p>Finance fields and approval actions differ by persona.</p></div></div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Deal</th><th>Customer</th><th>Value</th><th>Commission</th><th>Override</th><th>Approval</th><th>Salary Reflection</th><th>Action</th></tr></thead><tbody>
+          ${deals.map(d=>{
+            const comm = d.value*d.commissionRate/100;
+            return `<tr><td>${esc(d.id)}<br><span style="color:var(--muted)">${esc(d.project)}</span></td><td>${showPII()?esc(d.customer):'<span class="masked">'+esc(d.customer)+'</span>'}</td><td>${showFinanceSensitive()?money(d.value):'<span class="badge denied">Hidden</span>'}</td><td>${showFinanceSensitive()?money(comm):'<span class="badge denied">Hidden</span>'}</td><td>${d.override?`<span class="badge limited">${esc(d.overrideReason)}</span>`:`<span class="badge full">No</span>`}</td><td>${esc(d.approval)}</td><td>${showSalary()?esc(d.salaryReflection):'<span class="badge denied">Locked</span>'}</td><td>${d.override && !["Approved","Rejected"].includes(d.approval) ? `<button class="btn primary" ${canApproveFinance()?`data-approve-deal="${d.id}"`:"disabled"}>Approve</button>` : `<button class="btn" disabled>No action</button>`}</td></tr>`
+          }).join("") || `<tr><td colspan="8"><div class="empty">No deals visible.</div></td></tr>`}
+        </tbody></table>
+      </div>
+    `;
+  }
+
+  function dealCard(d){
+    const comm = d.value*d.commissionRate/100;
+    return `<div class="deal-card">
+      <strong>${esc(d.id)} — ${showPII()?esc(d.customer):"Masked Customer"}</strong>
+      <p>${esc(d.project)} • ${esc(d.owner)}</p>
+      <div class="tag-row">
+        <span class="badge blue">${showFinanceSensitive()?money(d.value):"Value Hidden"}</span>
+        <span class="badge ${d.override?'limited':'full'}">${d.override?'Override':'Policy'}</span>
+        <span class="badge">${showFinanceSensitive()?money(comm):"Commission Hidden"}</span>
+      </div>
+    </div>`;
+  }
+
+  function renderRecruitment(){
+    if(state.currentPersona==="candidate"){
+      return `
+        ${accessBanner("recruitment")}
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Candidate Portal</h3>
+            <p>Candidate can only view public jobs and own application status.</p>
+            <div class="timeline">
+              <div class="event"><small>Own application</small><strong>Sales Agent — Interview</strong><p>Next step: interview scorecard pending.</p></div>
+              <div class="event"><small>Access</small><strong>No employee permissions</strong><p>Employee access is created only after acceptance + invitation.</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Published Jobs</h3>
+            ${["Sales Agent","Finance Officer","Marketplace Content Admin","Team Leader"].map(j=>`<div class="lead-card"><strong>${j}</strong><p>Careers page listing with public application CTA.</p><button class="btn primary">Apply</button></div>`).join("")}
+          </div>
+        </div>`;
+    }
+    return `
+      ${accessBanner("recruitment")}
+      <div class="grid cols-4">
+        ${statCard("Candidates",state.candidates.length,"Visible recruitment records.",70,"HR")}
+        ${statCard("Interviews",state.candidates.filter(c=>c.stage==="Interview").length,"Interview stage records.",40,"Pipeline")}
+        ${statCard("Offers",state.candidates.filter(c=>c.stage==="Offer").length,"Offer stage records.",35,"Offer")}
+        ${statCard("Accepted",state.candidates.filter(c=>c.stage==="Accepted").length,"Can convert to employee pre-record.",30,"Onboarding")}
+      </div>
+      <div class="pipeline" style="margin-top:14px">
+        ${["New","Interview","Assessment","Offer","Accepted"].map(stage=>`<div class="lane"><h4><span>${stage}</span><span class="badge">${state.candidates.filter(c=>c.stage===stage).length}</span></h4>
+          ${state.candidates.filter(c=>c.stage===stage).map(c=>`<div class="candidate-card"><strong>${esc(c.name)}</strong><p>${esc(c.job)} • ${esc(c.source)} • Score ${c.score || "—"}</p><div class="tag-row"><span class="badge blue">${esc(c.department)}</span>${state.currentPersona==="hrRecruiter"?`<button class="btn primary" data-move-candidate="${c.id}">Move Stage</button>`:`<button class="btn" disabled>Read-only</button>`}</div></div>`).join("") || `<div class="empty">No candidates</div>`}
+        </div>`).join("")}
+      </div>
+    `;
+  }
+
+  function renderAgentPlatform(){
+    const pkey = state.currentPersona;
+    let rows = state.employees;
+    if(pkey==="agent") rows = rows.filter(e=>e.name==="Omar Agent");
+    if(pkey==="teamLeader") rows = rows.filter(e=>e.team==="Alpha");
+    if(pkey==="salesManager") rows = rows.filter(e=>["Alpha","Beta"].includes(e.team));
+    return `
+      ${accessBanner("agentPlatform")}
+      <div class="grid cols-3">
+        ${statCard("Employees Visible",rows.length,"Employee readiness records filtered by role.",60,"People")}
+        ${statCard("Active Access",rows.filter(e=>e.access==="Active").length,"Full permissions active after gates.",70,"Access")}
+        ${statCard("Pending Gates",rows.filter(e=>e.access!=="Active").length,"Training/docs/readiness blocking access.",45,"Gate")}
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table><thead><tr><th>Employee</th><th>Department</th><th>Job Title</th><th>Role</th><th>Training</th><th>Documents</th><th>Access State</th></tr></thead><tbody>
+          ${rows.map(e=>`<tr><td><strong>${esc(e.name)}</strong><br>${esc(e.id)}</td><td>${esc(e.department)}</td><td>${esc(e.jobTitle)}</td><td>${esc(e.role)}</td><td><div class="progress"><span style="width:${e.training}%"></span></div><small>${e.training}%</small></td><td>${esc(e.docs)}</td><td><span class="badge ${e.access==="Active"?"full":"limited"}">${esc(e.access)}</span></td></tr>`).join("")}
+        </tbody></table>
+      </div>
+    `;
+  }
+
+  function renderTraining(){
+    let rows = state.employees;
+    if(state.currentPersona==="agent") rows = rows.filter(e=>e.name==="Omar Agent");
+    return `
+      ${accessBanner("training")}
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Training Gate Logic</h3>
+          <p>Permissions linked to required courses remain locked until completion is synced or manually evidenced.</p>
+          <div class="flow" style="grid-template-columns:repeat(4,minmax(150px,1fr));margin-top:12px">
+            <div class="flow-step"><b>1</b><h4>Job Title</h4><p>Sales Agent / Finance Officer etc.</p></div>
+            <div class="flow-step"><b>2</b><h4>Role Template</h4><p>Permission bundle mapped to job.</p></div>
+            <div class="flow-step"><b>3</b><h4>Training Path</h4><p>Viva Learning / manual evidence.</p></div>
+            <div class="flow-step"><b>4</b><h4>Access Active</h4><p>Gated permissions unlock.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Training Heatmap</h3>
+          <div class="heat">${rows.concat(rows).slice(0,14).map((e,i)=>`<span class="${e.training>80?'cool':e.training>50?'warm':'hot'}">${e.training}%</span>`).join("")}</div>
+          <p style="margin-top:12px">Hot cells indicate blocked readiness or manager risk before assignment.</p>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table><thead><tr><th>Employee</th><th>Job Title</th><th>Required Training</th><th>Status</th><th>Gated Permissions</th><th>Exception</th></tr></thead><tbody>
+          ${rows.map(e=>`<tr><td>${esc(e.name)}</td><td>${esc(e.jobTitle)}</td><td>Homes Sales/Compliance Path</td><td><span class="badge ${e.training>=80?'full':'limited'}">${e.training}% complete</span></td><td>${e.training>=80?'<span class="badge full">Unlocked</span>':'<span class="badge denied">Locked</span>'}</td><td><button class="btn" ${["backofficeAdmin","hrRecruiter"].includes(state.currentPersona)?'':'disabled'}>Review Evidence</button></td></tr>`).join("")}
+        </tbody></table>
+      </div>
+    `;
+  }
+
+  function renderBackoffice(){
+    return `
+      ${accessBanner("backoffice")}
+      <div class="grid cols-3">
+        ${statCard("Departments","9","Sales, HR, Finance, Backoffice, Marketing, Marketplace Ops, Executive, System.",80,"Org")}
+        ${statCard("Custom Roles",state.roles.length,"Reusable permission bundles.",60,"RBAC")}
+        ${statCard("Access Pending",state.employees.filter(e=>e.access!=="Active").length,"Readiness blocked by docs/training.",50,"Gate")}
+      </div>
+      <div class="split" style="margin-top:14px">
+        <div class="card">
+          <h3>Custom Role Builder ${canEditRBAC()?'<span class="badge full">Editable</span>':'<span class="badge limited">Read-only / Limited</span>'}</h3>
+          <p>Admins create roles, select permissions, attach role to job title, then training gates decide activation.</p>
+          <div class="toolbar" style="margin-top:12px">
+            <select class="select" id="roleSelect">${state.roles.map((r,i)=>`<option value="${i}">${esc(r.name)}</option>`).join("")}</select>
+            <button class="btn primary" ${canEditRBAC()?'id="saveRoleBtn"':'disabled'}>Save Role Change</button>
+          </div>
+          <div class="permission-grid" id="permGrid">
+            ${permissionCatalog().map(x=>`<label class="perm"><input type="checkbox" ${canEditRBAC()?'':'disabled'} ${state.roles[0].permissions.includes(x)?'checked':''}>${esc(x)}</label>`).join("")}
+          </div>
+        </div>
+        <div class="card">
+          <h3>Access Readiness Queue</h3>
+          <div class="timeline">
+            ${state.employees.filter(e=>e.access!=="Active").map(e=>`<div class="event"><small>${esc(e.id)}</small><strong>${esc(e.name)} — ${esc(e.access)}</strong><p>${esc(e.jobTitle)} • Docs: ${esc(e.docs)} • Training: ${e.training}%</p></div>`).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function permissionCatalog(){
+    return ["View Own Leads","View Team Leads","View All Leads","Create Lead","Edit Lead","Assign Leads","Reassign Leads","Merge Duplicate Lead","Create Task","Schedule Tour","Create Deal","Move Deal Stage","View Deal Value","View Commission","Configure Commission Policy","Submit Override","Approve Override","Edit Salary Reflection","Create Job Requisition","Publish Job","View Candidates","Move Candidate Stage","Send Employee Invitation","Create Department","Create Job Title","Create Custom Role","Assign Role","Review Documents","Approve Access Readiness","View Audit Logs","Publish Listing","Manage Source Tags","Export Report","Configure Integrations","Manage Security Settings"];
+  }
+
+  function renderFinance(){
+    const deals = visibleDeals();
+    return `
+      ${accessBanner("finance")}
+      <div class="grid cols-4">
+        ${statCard("Visible Deal Value",showFinanceSensitive()?money(deals.reduce((a,d)=>a+d.value,0)):"Restricted","Value visibility depends on finance-sensitive permission.",70,"Finance")}
+        ${statCard("Commission Forecast",showFinanceSensitive()?money(deals.reduce((a,d)=>a+d.value*d.commissionRate/100,0)):"Restricted","Draft commission from deal data.",65,"Commission")}
+        ${statCard("Override Exceptions",deals.filter(d=>d.override).length,"Override reason and approval required.",55,"Approval")}
+        ${statCard("Salary Reflection",showSalary()?"Visible":"Locked","Separate field-level permission.",showSalary()?85:15,"Sensitive")}
+      </div>
+      <div class="table-wrap" style="margin-top:14px">
+        <table><thead><tr><th>Policy / Deal</th><th>Developer</th><th>Project</th><th>Deal Value</th><th>Rate</th><th>Commission</th><th>Finance State</th><th>Salary Reflection</th><th>Action</th></tr></thead><tbody>
+          ${deals.map(d=>`<tr><td>${esc(d.id)}</td><td>${esc(d.developer)}</td><td>${esc(d.project)}</td><td>${showFinanceSensitive()?money(d.value):'<span class="badge denied">Hidden</span>'}</td><td>${showFinanceSensitive()?d.commissionRate+'%':'—'}</td><td>${showFinanceSensitive()?money(d.value*d.commissionRate/100):'<span class="badge denied">Hidden</span>'}</td><td>${esc(d.financeState)}</td><td>${showSalary()?esc(d.salaryReflection):'<span class="badge denied">Locked</span>'}</td><td><button class="btn primary" ${canApproveFinance()?`data-approve-deal="${d.id}"`:"disabled"}>Validate</button></td></tr>`).join("") || `<tr><td colspan="9"><div class="empty">No finance records visible.</div></td></tr>`}
+        </tbody></table>
+      </div>
+    `;
+  }
+
+  function renderReports(){
+    const reportCards = [
+      ["Lead Report","CRM source, owner, status, duplicate state","crm"],
+      ["Source Report","Marketplace/campaign contribution to outcomes","marketplaceDashboard"],
+      ["Deals Report","Pipeline, values, stage aging","deals"],
+      ["Commission Report","Overrides, approvals, salary reflection","finance"],
+      ["Recruitment Funnel","Jobs, candidates, stages, scores","recruitment"],
+      ["Training Readiness","Job title learning and access gates","training"],
+      ["Audit Report","Sensitive actions and exports","settings"],
+      ["Executive Portfolio","Corporate KPIs and governance","dashboard"]
+    ];
+    return `
+      ${accessBanner("reports")}
+      <div class="grid cols-4">
+        ${reportCards.map(([name,desc,mod])=>{
+          const st=status(mod);
+          return `<div class="card"><h3>${name}</h3><p>${desc}</p><div class="lens-list"><span class="badge ${st}">${st}</span><button class="btn" ${st==="denied"?"disabled":`data-export="${name}"`}>Export</button></div></div>`
+        }).join("")}
+      </div>
+      <div class="card" style="margin-top:14px">
+        <h3>Metric Dictionary Rule</h3>
+        <p>Every dashboard/report metric must have one definition and reconcile to source records. Export and scheduled report delivery are audited.</p>
+      </div>
+    `;
+  }
+
+  function renderCampaigns(){
+    return `
+      ${accessBanner("campaigns")}
+      <div class="grid cols-4">
+        ${state.campaigns.map(c=>statCard(c.name,c.leads,`${c.source} • ${c.tours} tours • ${c.deals} deals`,Math.min(100,c.leads*1.6),c.status)).join("")}
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Automation Rules</h3>
+          <div class="timeline">
+            <div class="event"><small>Routing</small><strong>Marketplace inquiry → Manager Queue</strong><p>Creates lead intake event, duplicate check, then manager queue assignment.</p></div>
+            <div class="event"><small>SLA</small><strong>Stale lead alert</strong><p>If no next action within SLA, notify Team Leader/Manager.</p></div>
+            <div class="event"><small>Protection</small><strong>Manual lead guard</strong><p>Automation cannot reassign protected manual leads without authorized override.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Source → CRM Outcome</h3>
+          <div class="bars">${state.campaigns.map(c=>`<div class="bar"><span>${esc(c.name)}</span><div class="bar-track"><span style="width:${Math.min(100,c.deals*25+c.tours*4)}%"></span></div><b>${c.deals} deals</b></div>`).join("")}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderContacts(){
+    return `
+      ${accessBanner("contacts")}
+      <div class="grid cols-3">
+        ${state.contacts.map(c=>`<div class="card"><h3>${esc(c.name)}</h3><p>${esc(c.company)} • ${esc(c.category)}</p><div class="tag-row"><span class="badge">${showPII()?esc(c.phone):"Phone masked"}</span><span class="badge blue">${esc(c.linked)}</span></div></div>`).join("")}
+      </div>
+    `;
+  }
+
+  function renderSettings(){
+    return `
+      ${accessBanner("settings")}
+      <div class="grid cols-3">
+        ${statCard("Integration Health","94%","Marketplace-CRM sync, learning status integration, export logging.",94,"Ops")}
+        ${statCard("Audit Events",state.audit.length,"Sensitive actions are immutable/searchable.",78,"Audit")}
+        ${statCard("Security Posture","Least Privilege","RBAC + hierarchy + field-level finance permissions.",88,"Security")}
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Integration Health</h3>
+          <div class="timeline">
+            <div class="event"><small>Healthy</small><strong>Marketplace → CRM Lead Intake</strong><p>Last sync: 2 minutes ago.</p></div>
+            <div class="event"><small>Warning</small><strong>Viva Learning Completion Sync</strong><p>Some completions pending retry.</p></div>
+            <div class="event"><small>Healthy</small><strong>Finance Export Log</strong><p>Exports recorded with actor, filters, timestamp.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Audit Log</h3>
+          <div class="timeline">${state.audit.slice(0,10).map(a=>auditEvent(a)).join("")}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTrace(){
+    const reqs = [
+      ["MKT-001","Marketplace discovery, filters, project navigation"],
+      ["CRM-002","Duplicate control before assignment"],
+      ["LEADH-001","Manager queue before agent ownership"],
+      ["BUY-001","Structured buyer preference capture"],
+      ["LST-001","Developer/project/compound/unit inventory"],
+      ["DEAL-004","Commission override reason + hierarchy approval"],
+      ["TASK-003","Overdue tasks in dashboards"],
+      ["DBD-003","KPI drill-down to filtered modules"],
+      ["AGT-004","Block full permissions until readiness gates"],
+      ["REC-005","Accepted candidate to employee invitation"],
+      ["LRN-003","Training gate blocks sensitive permissions"],
+      ["BO-003","Audit logs for sensitive actions"],
+      ["FIN-005","Field-level finance permissions"],
+      ["RPT-002","One metric dictionary"],
+      ["SEC-003","Least privilege across modules"]
+    ];
+    return `
+      ${accessBanner("trace")}
+      <div class="card">
+        <h3>BRD Coverage Map</h3>
+        <p>الـ prototype ده معمول كـ executable BRD demo: كل requirement مهم له screen أو behavior أو permission difference.</p>
+      </div>
+      <div class="req-grid" style="margin-top:14px">
+        ${reqs.map(([id,desc])=>`<div class="req"><b>${id}</b><p>${esc(desc)}</p><div class="tag-row"><span class="badge full">Covered</span></div></div>`).join("")}
+      </div>
+    `;
+  }
+
+  function auditEvent(a){
+    return `<div class="event"><small>${esc(a.time)} • ${esc(a.actor)}</small><strong>${esc(a.action)}</strong><p>${esc(a.detail)}</p></div>`;
+  }
+
+  function renderDeniedPage(moduleId){
+    const m = moduleById(moduleId);
+    return `<div class="empty">
+      <div class="deny-illustration">🔒</div>
+      <h3>${m.name} is locked for ${current().label}</h3>
+      <p>${current().label} لا يملك permission لهذا الموديول حسب BRD persona restrictions.</p>
+      <button class="btn primary" onclick="window.HomesDemo.go('dashboard')">Back to allowed dashboard</button>
+    </div>`;
+  }
+
+  function renderContent(){
+    let html = "";
+    if(status(activeModule)==="denied"){
+      html = renderDeniedPage(activeModule);
+    } else {
+      const map = {
+        dashboard:renderDashboard, marketplace:renderMarketplace, marketplaceDashboard:renderMarketplaceDashboard, crm:renderCRM,
+        hierarchy:renderHierarchy, buyer:renderBuyer, inventory:renderInventory, tasks:renderTasks, deals:renderDeals,
+        recruitment:renderRecruitment, agentPlatform:renderAgentPlatform, training:renderTraining, backoffice:renderBackoffice,
+        finance:renderFinance, reports:renderReports, campaigns:renderCampaigns, contacts:renderContacts, settings:renderSettings, trace:renderTrace
+      };
+      html = map[activeModule]();
+    }
+    document.getElementById("content").innerHTML = html;
+    attachEvents();
+  }
+
+  function showDenied(moduleId){
+    const m = moduleById(moduleId);
+    const p = current();
+    const modal = document.getElementById("modal");
+    modal.innerHTML = `<div class="modal">
+      <div class="deny-illustration">🔒</div>
+      <h3>Access Denied: ${m.name}</h3>
+      <p>أنت داخل كـ <b>${p.label}</b>. حسب الـ BRD، هذا الدور ليس له علاقة بهذا الموديول أو لا يملك permissions المطلوبة.</p>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card"><h3>Current Scope</h3><p>${p.scope}</p></div>
+        <div class="card"><h3>Why blocked?</h3><p>${p.restrictions.join(" • ")}</p></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn primary" id="closeModal">فهمت</button>
+        <button class="btn" id="switchToAllowed">Open My Dashboard</button>
+      </div>
+    </div>`;
+    modal.classList.add("show");
+    document.getElementById("closeModal").onclick = ()=> modal.classList.remove("show");
+    document.getElementById("switchToAllowed").onclick = ()=>{ modal.classList.remove("show"); activeModule="dashboard"; render(); }
+  }
+
+  function attachEvents(){
+    document.querySelectorAll("[data-open-lead]").forEach(b=> b.onclick=()=>openLead(b.dataset.openLead));
+    document.querySelectorAll("[data-assign]").forEach(b=> b.onclick=()=>assignLeadDialog(b.dataset.assign));
+    const cap = document.getElementById("captureLeadBtn");
+    if(cap) cap.onclick = captureLead;
+    const dup = document.getElementById("duplicateReviewBtn");
+    if(dup) dup.onclick = () => { addAudit("Duplicate Review", current().label + " ran duplicate review on visible leads."); toast("Duplicate review run logged in audit."); render(); };
+    document.querySelectorAll("[data-complete-task]").forEach(b=> b.onclick=()=>completeTask(b.dataset.completeTask));
+    document.querySelectorAll("[data-approve-deal]").forEach(b=> b.onclick=()=>approveDeal(b.dataset.approveDeal));
+    document.querySelectorAll("[data-export]").forEach(b=> b.onclick=()=>{ addAudit("Report Export", current().label + " exported " + b.dataset.export + " with current filters."); toast("Export audited: " + b.dataset.export); render(); });
+    document.querySelectorAll("[data-move-candidate]").forEach(b=> b.onclick=()=>moveCandidate(b.dataset.moveCandidate));
+    const saveRole = document.getElementById("saveRoleBtn");
+    if(saveRole) saveRole.onclick = () => { addAudit("Role Permission Change", "Backoffice saved permission changes in Role Builder prototype."); toast("Role changes saved and audited."); render(); };
+    const search = document.getElementById("leadSearch");
+    if(search) search.oninput = filterLeadTable;
+    const filter = document.getElementById("leadStageFilter");
+    if(filter) filter.onchange = filterLeadTable;
+  }
+
+  function filterLeadTable(){
+    const q = (document.getElementById("leadSearch")?.value || "").toLowerCase();
+    const st = (document.getElementById("leadStageFilter")?.value || "").toLowerCase();
+    document.querySelectorAll("[data-lead-row]").forEach(row=>{
+      const okQ = row.textContent.toLowerCase().includes(q);
+      const okSt = !st || row.dataset.stage === st;
+      row.style.display = okQ && okSt ? "" : "none";
+    });
+  }
+
+  function openLead(id){
+    const l = state.leads.find(x=>x.id===id);
+    const d = state.deals.find(x=>x.leadId===id);
+    const drawer = document.getElementById("drawer");
+    const pii = showPII();
+    drawer.innerHTML = `<div class="drawer-head">
+      <div><h3>${esc(l.id)} — ${pii?esc(l.name):"Masked Lead"}</h3><p style="color:var(--muted);margin:4px 0 0">${esc(l.stage)} • ${esc(l.source)}</p></div>
+      <button class="btn" id="closeDrawer">✕</button>
+    </div>
+    <div class="kv"><span>Contact</span><b>${pii?esc(l.phone):'<span class="badge denied">PII masked</span>'}</b></div>
+    <div class="kv"><span>Email</span><b>${pii?esc(l.email):'<span class="badge denied">PII masked</span>'}</b></div>
+    <div class="kv"><span>Source</span><b>${esc(l.source)} / ${esc(l.campaign)}</b></div>
+    <div class="kv"><span>Project</span><b>${esc(l.project)} / ${esc(l.developer)}</b></div>
+    <div class="kv"><span>Budget</span><b>${showFinanceSensitive() || ["agent","teamLeader","salesManager"].includes(state.currentPersona)?money(l.budget):'<span class="badge denied">Hidden</span>'}</b></div>
+    <div class="kv"><span>Owner</span><b>${esc(l.owner || "Manager Queue")}</b></div>
+    <div class="kv"><span>Team</span><b>${esc(l.team)}</b></div>
+    <div class="kv"><span>Duplicate</span><b>${esc(l.duplicate)}</b></div>
+    <div class="kv"><span>Manual Protection</span><b>${l.manualProtected ? "Protected 6 months" : "No protection"}</b></div>
+    <div class="kv"><span>Preference</span><b>${l.preference}% complete</b></div>
+    <div class="kv"><span>Deal</span><b>${d ? esc(d.id)+" / "+esc(d.stage) : "No deal yet"}</b></div>
+    <div class="section-head"><div><h3>Actions</h3><p>Disabled buttons show real permission boundaries.</p></div></div>
+    <div class="tag-row">
+      <button class="btn primary" ${actorOwns(l.ownerId)?'':'disabled'}>Edit Qualification</button>
+      <button class="btn" ${actorOwns(l.ownerId)?'':'disabled'}>Create Task</button>
+      <button class="btn" ${canAssign()?`data-assign="${l.id}"`:'disabled'}>Reassign</button>
+      <button class="btn warning" ${["salesManager","salesDirector"].includes(state.currentPersona)?'':'disabled'}>Override Manual Protection</button>
+    </div>`;
+    drawer.classList.add("open");
+    document.getElementById("closeDrawer").onclick = ()=>drawer.classList.remove("open");
+    drawer.querySelectorAll("[data-assign]").forEach(b=> b.onclick=()=>assignLeadDialog(b.dataset.assign));
+  }
+
+  function assignLeadDialog(id){
+    const l = state.leads.find(x=>x.id===id);
+    if(!canAssign()){ showDenied("hierarchy"); return; }
+    const teamOptions = state.currentPersona==="teamLeader"
+      ? [{name:"Omar Agent", id:"agentOmar", team:"Alpha"},{name:"Yara Agent", id:"agentYara", team:"Alpha"}]
+      : [{name:"Omar Agent", id:"agentOmar", team:"Alpha"},{name:"Yara Agent", id:"agentYara", team:"Alpha"},{name:"Mina Agent", id:"agentMina", team:"Beta"},{name:"Laila Agent", id:"agentLaila", team:"Beta"}];
+    const modal = document.getElementById("modal");
+    modal.innerHTML = `<div class="modal">
+      <h3>Assign Lead ${esc(id)}</h3>
+      <p>Assignment follows hierarchy and will create audit event. Team Leader can only assign within team scope.</p>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card"><h3>Lead</h3><p>${showPII()?esc(l.name):"Masked"} • ${esc(l.project)} • ${esc(l.priority)}</p></div>
+        <div class="card"><h3>Current Owner</h3><p>${esc(l.owner || "Manager Queue")}</p></div>
+      </div>
+      <label class="label" style="margin-top:14px">Assign to</label>
+      <select id="assignTo" class="select">${teamOptions.map(o=>`<option value="${o.id}|${o.name}|${o.team}">${o.name} — Team ${o.team}</option>`).join("")}</select>
+      <div class="modal-actions">
+        <button class="btn primary" id="confirmAssign">Assign & Audit</button>
+        <button class="btn" id="closeModal">Cancel</button>
+      </div>
+    </div>`;
+    modal.classList.add("show");
+    document.getElementById("closeModal").onclick = ()=> modal.classList.remove("show");
+    document.getElementById("confirmAssign").onclick = ()=>{
+      const [ownerId,name,team] = document.getElementById("assignTo").value.split("|");
+      l.ownerId = ownerId; l.owner = name; l.team = team; l.stage = l.stage==="Manager Queue"?"New":l.stage;
+      addAudit("Lead Assignment", `${current().label} assigned ${l.id} to ${name} in Team ${team}.`);
+      modal.classList.remove("show");
+      toast(`Lead ${l.id} assigned to ${name}.`);
+      render();
+    };
+  }
+
+  function captureLead(){
+    const name = document.getElementById("inqName").value || "New Customer";
+    const phone = document.getElementById("inqPhone").value || "+20";
+    const project = document.getElementById("inqProject").value;
+    const intent = document.getElementById("inqIntent").value;
+    const inv = state.inventory.find(u=>u.project===project) || state.inventory[0];
+    const id = "L-" + (1000 + state.leads.length + 1);
+    state.leads.unshift({id, name, phone, email:"captured@homes.eg", source:"Marketplace", campaign:intent, project, developer:inv.developer, budget:inv.price, stage:"Manager Queue", owner:null, ownerId:null, team:"Unassigned", manager:"Khaled Manager", duplicate:"Pending", priority:"Warm", nextAction:"Duplicate check + manager assignment", age:0, manualProtected:false, preference:10});
+    addAudit("Marketplace Lead Capture", `${id} created from ${intent} with project ${project}.`);
+    toast(`CRM intake event created: ${id}`);
+    activeModule = state.currentPersona==="customer" ? "marketplace" : "crm";
+    save();
+    render();
+  }
+
+  function completeTask(id){
+    const t = state.tasks.find(x=>x.id===id);
+    if(!t) return;
+    t.status = "Complete"; t.overdue=false;
+    addAudit("Task Complete", `${current().label} completed task ${id}: ${t.title}`);
+    toast("Task completed and timeline updated.");
+    render();
+  }
+
+  function approveDeal(id){
+    if(!canApproveFinance()){ showDenied("finance"); return; }
+    const d = state.deals.find(x=>x.id===id);
+    if(!d) return;
+    d.approval = "Approved";
+    d.financeState = "Validated";
+    d.salaryReflection = "Ready";
+    addAudit("Commission Approval", `${current().label} approved override/validation for ${id}.`);
+    toast(`${id} approved and finance state validated.`);
+    render();
+  }
+
+  function moveCandidate(id){
+    const stages = ["New","Interview","Assessment","Offer","Accepted"];
+    const c = state.candidates.find(x=>x.id===id);
+    const i = stages.indexOf(c.stage);
+    c.stage = stages[Math.min(stages.length-1, i+1)];
+    addAudit("Candidate Stage Move", `${current().label} moved ${c.name} to ${c.stage}.`);
+    toast(`${c.name} moved to ${c.stage}.`);
+    render();
+  }
+
+  function showRoleExplanation(){
+    const p=current();
+    const modal = document.getElementById("modal");
+    const rows = modules.map(m=>`<tr><td>${m.icon} ${m.name}</td><td><span class="badge ${status(m.id)}">${status(m.id)}</span></td><td>${m.desc}</td></tr>`).join("");
+    modal.innerHTML = `<div class="modal" style="width:min(920px,96vw)">
+      <h3>Access Explanation — ${p.label}</h3>
+      <p>${p.story}</p>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card"><h3>Allowed Permissions</h3><div class="lens-list">${p.permissions.map(x=>`<span class="badge full">${esc(x)}</span>`).join("")}</div></div>
+        <div class="card"><h3>Restrictions</h3><div class="lens-list">${p.restrictions.map(x=>`<span class="badge denied">${esc(x)}</span>`).join("")}</div></div>
+      </div>
+      <div class="table-wrap" style="margin-top:14px;max-height:320px;overflow:auto"><table><thead><tr><th>Module</th><th>Status</th><th>Meaning</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="modal-actions"><button class="btn primary" id="closeModal">Close</button></div>
+    </div>`;
+    modal.classList.add("show");
+    document.getElementById("closeModal").onclick = ()=> modal.classList.remove("show");
+  }
+
+  function mobilePersonaDialog(){
+    const modal = document.getElementById("modal");
+    modal.innerHTML = `<div class="modal">
+      <h3>Switch Persona</h3>
+      <p>اختار role وشوف الـ UI والبيانات والصلاحيات تتغير فورًا.</p>
+      <select id="modalPersona" class="select" style="margin-top:14px">${Object.entries(personas).map(([k,p])=>`<option value="${k}" ${k===state.currentPersona?'selected':''}>${p.label}</option>`).join("")}</select>
+      <div class="modal-actions"><button class="btn primary" id="applyPersona">Apply</button><button class="btn" id="closeModal">Cancel</button></div>
+    </div>`;
+    modal.classList.add("show");
+    document.getElementById("closeModal").onclick = ()=> modal.classList.remove("show");
+    document.getElementById("applyPersona").onclick = ()=> {
+      state.currentPersona = document.getElementById("modalPersona").value;
+      if(status(activeModule)==="denied") activeModule = "dashboard";
+      addAudit("Persona Switch", "Demo switched to " + current().label + " access lens.");
+      modal.classList.remove("show");
+      render();
+    };
+  }
+
+  function reset(){
+    localStorage.removeItem(STORAGE_KEY);
+    state = defaultState();
+    activeModule = state.activeModule;
+    toast("Demo data reset.");
+    render();
+  }
+
+  window.HomesDemo = {
+    go(id){
+      if(status(id)==="denied") return showDenied(id);
+      activeModule=id; state.activeModule=id; save(); render();
+    }
+  };
+
+  function render(){
+    setupPersonaSelect();
+    setTitle();
+    renderRoleLens();
+    renderNav();
+    renderContent();
+    save();
+  }
+
+  document.getElementById("explainRoleBtn").onclick = showRoleExplanation;
+  document.getElementById("mobilePersonaBtn").onclick = mobilePersonaDialog;
+  document.getElementById("resetBtn").onclick = reset;
+  document.getElementById("modal").onclick = (e)=>{ if(e.target.id==="modal") e.currentTarget.classList.remove("show"); };
+
+  render();
+})();
+</script>
+</body>
+</html>
