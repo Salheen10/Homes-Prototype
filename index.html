@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Homes BRD - Advanced Role-Based Interactive Prototype</title>
+  <title>Homes BRD - Advanced Role-Based Interactive Prototype V1.2 Careers Publish</title>
   <style>
     :root{
       --bg:#08111f;
@@ -559,6 +559,12 @@
         {id:"U-4", project:"O West", developer:"Orascom", compound:"6th October", unit:"Townhouse 240m", price:9800000, delivery:"2026", finishing:"Core & Shell", status:"Reserved", origin:"Manual", payment:"20% DP / 6 years"},
         {id:"U-5", project:"Mountain View iCity", developer:"Mountain View", compound:"New Cairo", unit:"Apartment 155m", price:7300000, delivery:"2027", finishing:"Semi-finished", status:"Available", origin:"Marketplace", payment:"10% DP / 9 years"}
       ],
+      jobs:[
+        {id:"JOB-1", title:"Sales Agent", department:"Sales", teamLabel:"Residential Advisory", location:"New Cairo", employmentType:"Full-time", workMode:"On-site", seniority:"0-2 years", summary:"Help qualified buyers discover and progress the right developer-led inventory.", responsibilities:["Manage assigned leads","Capture buyer preferences","Schedule tours","Progress qualified opportunities"], required:["Strong communication","Basic sales discipline","CRM readiness"], preferred:["Real estate background","New Cairo market exposure"], benefits:"Career path, training, performance incentives", openings:8, compensationVisible:false, status:"Published"},
+        {id:"JOB-2", title:"Team Leader", department:"Sales", teamLabel:"Primary Market", location:"New Cairo", employmentType:"Full-time", workMode:"On-site", seniority:"4-6 years", summary:"Lead a sales team, distribute leads, and coach execution quality.", responsibilities:["Distribute leads","Monitor SLA","Coach agents","Escalate stuck deals"], required:["Team leadership","Pipeline management","Sales reporting"], preferred:["Developer network","Coaching experience"], benefits:"Leadership track, incentives", openings:2, compensationVisible:false, status:"Published"},
+        {id:"JOB-3", title:"Finance Officer", department:"Finance", teamLabel:"", location:"Cairo", employmentType:"Full-time", workMode:"Hybrid", seniority:"3-5 years", summary:"Validate commissions, finance states, and salary reflection records.", responsibilities:["Validate commission drafts","Review overrides","Maintain finance records"], required:["Finance operations","Attention to detail"], preferred:["Real estate commission exposure"], benefits:"Hybrid schedule", openings:1, compensationVisible:true, compText:"Competitive range available upon policy approval", status:"Published"},
+        {id:"JOB-4", title:"Marketplace Content Admin", department:"Marketplace Operations", teamLabel:"Catalog", location:"Cairo", employmentType:"Full-time", workMode:"Hybrid", seniority:"1-3 years", summary:"Maintain project, compound, and unit content quality for marketplace discovery.", responsibilities:["Manage inventory content","Validate publish fields","Support attribution context"], required:["Content operations","High accuracy"], preferred:["Proptech exposure"], benefits:"Learning stipend", openings:1, compensationVisible:false, status:"Draft"}
+      ],
       candidates:[
         {id:"C-1", name:"Aya Mostafa", job:"Sales Agent", source:"Careers Page", stage:"Interview", score:78, department:"Sales", owner:"Dina HR"},
         {id:"C-2", name:"Peter Adel", job:"Team Leader", source:"LinkedIn", stage:"Assessment", score:85, department:"Sales", owner:"Dina HR"},
@@ -825,7 +831,7 @@
       personaPanel = `
       <div class="grid cols-3">
         ${statCard("Own Application Status","Interview","Candidate يرى طلبه فقط، ولا يشوف Candidates آخرين.",65,"Own Data")}
-        ${statCard("Published Jobs","4","Jobs open to public careers page.",80,"Public")}
+        ${statCard("Published Jobs","4","Jobs published through the standardized public careers schema.",80,"Public")}
         ${statCard("Employee Access","Locked","No employee access until accepted and invited.",20,"Gate")}
       </div>`;
     } else if(pkey==="hrRecruiter"){
@@ -915,6 +921,20 @@
         <span class="badge">${esc(u.payment)}</span>
         ${publicMode ? "" : `<span class="badge blue">Origin: ${esc(u.origin)}</span>`}
       </div>
+    </div>`;
+  }
+
+  function careersJobCard(job, publicMode=false){
+    return `<div class="candidate-card">
+      <strong>${esc(job.title)}</strong>
+      <p>${esc(job.department)} • ${esc(job.location)} • ${esc(job.employmentType)}${job.workMode ? ' • ' + esc(job.workMode) : ''}</p>
+      <div class="tag-row">
+        <span class="badge blue">${esc(job.id)}</span>
+        <span class="badge">${esc(job.status)}</span>
+        ${job.teamLabel ? `<span class="badge">${esc(job.teamLabel)}</span>` : ''}
+        ${job.compensationVisible && job.compText ? `<span class="badge full">Comp visible</span>` : ''}
+      </div>
+      ${publicMode ? `<p style="margin-top:8px">${esc(job.summary)}</p><button class="btn primary" data-apply-job="${esc(job.id)}">Apply Now</button>` : ''}
     </div>`;
   }
 
@@ -1193,36 +1213,70 @@
   }
 
   function renderRecruitment(){
+    const publishedJobs = state.jobs.filter(j=>j.status === "Published");
     if(state.currentPersona==="candidate"){
       return `
         ${accessBanner("recruitment")}
         <div class="grid cols-2">
           <div class="card">
-            <h3>Candidate Portal</h3>
-            <p>Candidate can only view public jobs and own application status.</p>
-            <div class="timeline">
-              <div class="event"><small>Own application</small><strong>Sales Agent — Interview</strong><p>Next step: interview scorecard pending.</p></div>
-              <div class="event"><small>Access</small><strong>No employee permissions</strong><p>Employee access is created only after acceptance + invitation.</p></div>
+            <h3>Public Careers Page — homes.com/careers</h3>
+            <p>Release 1 uses one standardized public vacancy structure. Candidate sees only public-safe fields before applying.</p>
+            <div class="timeline" style="margin-top:12px">
+              <div class="event"><small>Public field set</small><strong>Title, department, location, employment type, summary</strong><p>Required qualifications, responsibilities, and Apply CTA are public.</p></div>
+              <div class="event"><small>Hidden internal fields</small><strong>Hiring manager, approval state, target role mapping</strong><p>These remain internal and never appear on the public careers page by default.</p></div>
+              <div class="event"><small>Own application</small><strong>Sales Agent — Interview</strong><p>Candidate can only track own application and own interview slot.</p></div>
             </div>
           </div>
           <div class="card">
-            <h3>Published Jobs</h3>
-            ${["Sales Agent","Finance Officer","Marketplace Content Admin","Team Leader"].map(j=>`<div class="lead-card"><strong>${j}</strong><p>Careers page listing with public application CTA.</p><button class="btn primary">Apply</button></div>`).join("")}
+            <h3>Published Vacancies</h3>
+            ${publishedJobs.map(j=>careersJobCard(j,true)).join("")}
           </div>
+        </div>
+        <div class="grid cols-3" style="margin-top:14px">
+          <div class="card"><h3>Public</h3><div class="lens-list"><span class="badge full">Vacancy title</span><span class="badge full">Department</span><span class="badge full">Location</span><span class="badge full">Employment type</span><span class="badge full">Role summary</span><span class="badge full">Responsibilities</span><span class="badge full">Required qualifications</span></div></div>
+          <div class="card"><h3>Conditional</h3><div class="lens-list"><span class="badge limited">Team label</span><span class="badge limited">Benefits</span><span class="badge limited">Openings count</span><span class="badge limited">Compensation visibility</span></div></div>
+          <div class="card"><h3>Internal only</h3><div class="lens-list"><span class="badge denied">Hiring manager</span><span class="badge denied">Approval state</span><span class="badge denied">Target role mapping</span></div></div>
         </div>`;
     }
+    const canEdit = ["hrRecruiter","executive"].includes(state.currentPersona);
     return `
       ${accessBanner("recruitment")}
       <div class="grid cols-4">
+        ${statCard("Published Jobs",publishedJobs.length,"Jobs currently visible on the public careers page.",70,"Careers")}
         ${statCard("Candidates",state.candidates.length,"Visible recruitment records.",70,"HR")}
         ${statCard("Interviews",state.candidates.filter(c=>c.stage==="Interview").length,"Interview stage records.",40,"Pipeline")}
-        ${statCard("Offers",state.candidates.filter(c=>c.stage==="Offer").length,"Offer stage records.",35,"Offer")}
         ${statCard("Accepted",state.candidates.filter(c=>c.stage==="Accepted").length,"Can convert to employee pre-record.",30,"Onboarding")}
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Vacancy Publish Governance</h3>
+          <p>This screen reflects the standardized vacancy template and public careers-page publish schema from the updated BRD.</p>
+          <div class="table-wrap" style="margin-top:12px">
+            <table><thead><tr><th>Field Group</th><th>Examples</th><th>Publication Rule</th></tr></thead><tbody>
+              <tr><td>Public required</td><td>Title, Department, Location, Employment Type, Summary</td><td><span class="badge full">Always visible</span></td></tr>
+              <tr><td>Public conditional</td><td>Team label, Benefits, Openings count, Compensation</td><td><span class="badge limited">Publish only if approved</span></td></tr>
+              <tr><td>Internal only</td><td>Hiring Manager, Approval State, Target Role Mapping</td><td><span class="badge denied">Never public by default</span></td></tr>
+            </tbody></table>
+          </div>
+          <div class="toolbar" style="margin-top:12px">
+            <button class="btn primary" ${canEdit?'id="publishVacancyBtn"':''} ${canEdit?'':'disabled'}>Publish Selected Vacancy</button>
+            <button class="btn" ${canEdit?'id="openCareersPreviewBtn"':''} ${canEdit?'':'disabled'}>Open Public Preview</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Approved Public Vacancy Cards</h3>
+          ${state.jobs.map(j=>careersJobCard(j,false)).join("")}
+        </div>
       </div>
       <div class="pipeline" style="margin-top:14px">
         ${["New","Interview","Assessment","Offer","Accepted"].map(stage=>`<div class="lane"><h4><span>${stage}</span><span class="badge">${state.candidates.filter(c=>c.stage===stage).length}</span></h4>
           ${state.candidates.filter(c=>c.stage===stage).map(c=>`<div class="candidate-card"><strong>${esc(c.name)}</strong><p>${esc(c.job)} • ${esc(c.source)} • Score ${c.score || "—"}</p><div class="tag-row"><span class="badge blue">${esc(c.department)}</span>${state.currentPersona==="hrRecruiter"?`<button class="btn primary" data-move-candidate="${c.id}">Move Stage</button>`:`<button class="btn" disabled>Read-only</button>`}</div></div>`).join("") || `<div class="empty">No candidates</div>`}
         </div>`).join("")}
+      </div>
+      <div class="grid cols-3" style="margin-top:14px">
+        <div class="card"><h3>Careers Page Preview</h3><p>homes.com/careers publishes the same public structure for every approved vacancy in Release 1.</p><div class="lens-list"><span class="badge full">Standardized template</span><span class="badge limited">Conditional sections</span><span class="badge denied">No free-form builder</span></div></div>
+        <div class="card"><h3>Interview Scheduling</h3><p>HR exposes approved slots from Calendar/Calendly, then candidate selects one and panelists are invited.</p><div class="lens-list"><span class="badge full">Candidate slot selection</span><span class="badge full">Panel attendees</span><span class="badge full">Comments & scorecards</span></div></div>
+        <div class="card"><h3>Downstream Propagation</h3><p>Acceptance creates employee pre-record, then invitation / SSO activation / readiness gating takes over.</p><div class="lens-list"><span class="badge full">Employee pre-record</span><span class="badge full">Invitation</span><span class="badge full">Training gate</span></div></div>
       </div>
     `;
   }
@@ -1507,6 +1561,11 @@
     document.querySelectorAll("[data-approve-deal]").forEach(b=> b.onclick=()=>approveDeal(b.dataset.approveDeal));
     document.querySelectorAll("[data-export]").forEach(b=> b.onclick=()=>{ addAudit("Report Export", current().label + " exported " + b.dataset.export + " with current filters."); toast("Export audited: " + b.dataset.export); render(); });
     document.querySelectorAll("[data-move-candidate]").forEach(b=> b.onclick=()=>moveCandidate(b.dataset.moveCandidate));
+    document.querySelectorAll("[data-apply-job]").forEach(b=> b.onclick=()=>applyJob(b.dataset.applyJob));
+    const publishVacancyBtn = document.getElementById("publishVacancyBtn");
+    if(publishVacancyBtn) publishVacancyBtn.onclick = publishVacancy;
+    const openCareersPreviewBtn = document.getElementById("openCareersPreviewBtn");
+    if(openCareersPreviewBtn) openCareersPreviewBtn.onclick = openCareersPreview;
     const saveRole = document.getElementById("saveRoleBtn");
     if(saveRole) saveRole.onclick = () => { addAudit("Role Permission Change", "Backoffice saved permission changes in Role Builder prototype."); toast("Role changes saved and audited."); render(); };
     const search = document.getElementById("leadSearch");
@@ -1634,6 +1693,50 @@
     addAudit("Candidate Stage Move", `${current().label} moved ${c.name} to ${c.stage}.`);
     toast(`${c.name} moved to ${c.stage}.`);
     render();
+  }
+
+  function applyJob(id){
+    const job = state.jobs.find(j=>j.id===id);
+    if(!job) return;
+    addAudit("Candidate Apply", `Candidate opened apply flow for ${job.id} - ${job.title}.`);
+    toast(`Apply flow opened for ${job.title}.`);
+  }
+
+  function publishVacancy(){
+    const draft = state.jobs.find(j=>j.status !== "Published");
+    if(!draft){
+      toast("No draft vacancy available to publish in this demo.");
+      return;
+    }
+    draft.status = "Published";
+    addAudit("Vacancy Published", `${current().label} published ${draft.id} to homes.com/careers using the standardized public schema.`);
+    toast(`${draft.title} is now published on the careers page.`);
+    render();
+  }
+
+  function openCareersPreview(){
+    const job = state.jobs.find(j=>j.status === "Published") || state.jobs[0];
+    const modal = document.getElementById("modal");
+    modal.innerHTML = `<div class="modal" style="width:min(900px,96vw)">
+      <h3>Public Careers Preview — ${esc(job.title)}</h3>
+      <p>This preview shows the standardized public vacancy page derived from the approved requisition, with internal-only fields excluded by governance.</p>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card"><h3>Public Page</h3>
+          <div class="timeline">
+            <div class="event"><small>Title</small><strong>${esc(job.title)}</strong><p>${esc(job.department)} • ${esc(job.location)} • ${esc(job.employmentType)}${job.workMode ? ' • ' + esc(job.workMode) : ''}</p></div>
+            <div class="event"><small>Role Overview</small><strong>${esc(job.summary)}</strong><p>${esc((job.responsibilities || []).join(' • '))}</p></div>
+            <div class="event"><small>Required Qualifications</small><strong>${esc((job.required || []).join(' • '))}</strong><p>${job.compensationVisible && job.compText ? esc(job.compText) : 'Compensation hidden by policy in this demo.'}</p></div>
+          </div>
+        </div>
+        <div class="card"><h3>Internal-only Fields</h3>
+          <div class="lens-list"><span class="badge denied">Hiring Manager</span><span class="badge denied">Approval State</span><span class="badge denied">Target Role Mapping</span></div>
+          <p style="margin-top:12px">These remain available to HR and Backoffice internally but do not render on the public careers page.</p>
+        </div>
+      </div>
+      <div class="modal-actions"><button class="btn primary" id="closeModal">Close</button></div>
+    </div>`;
+    modal.classList.add("show");
+    document.getElementById("closeModal").onclick = ()=> modal.classList.remove("show");
   }
 
   function showRoleExplanation(){
